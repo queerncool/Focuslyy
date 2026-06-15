@@ -1,0 +1,43 @@
+import { useEffect } from 'react';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useBrandFonts } from '@/theme';
+
+SplashScreen.preventAutoHideAsync().catch(() => {
+  /* no-op: splash may already be hidden */
+});
+
+export default function RootLayout() {
+  const [fontsLoaded, fontError] = useBrandFonts();
+
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [fontsLoaded, fontError]);
+
+  // Hold the splash until brand fonts are ready (or fail) so we never flash
+  // system fonts in place of the locked typefaces.
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <StatusBar style="light" />
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(app)" />
+          <Stack.Screen name="(onboarding)" />
+          <Stack.Screen
+            name="(session)"
+            options={{ presentation: 'modal' }}
+          />
+        </Stack>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
+  );
+}
