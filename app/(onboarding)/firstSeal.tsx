@@ -19,13 +19,11 @@ export default function FirstSeal() {
   const setMode = useSessionStore((s) => s.setMode);
 
   const startFirstSeal = () => {
-    // Seed the 5-minute starter session.
+    // Seed the 5-minute starter session, then drop straight into the seal step.
     setBlockMin(5);
     setMode(mode);
     setOnboarded(true);
-    // Phase 3 will route into the (session) stack at the Seal Apps step with
-    // this 5-minute preset. Until that flow exists, land on the main app.
-    router.replace('/focus');
+    router.replace('/sealApps');
   };
 
   return (
