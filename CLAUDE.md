@@ -1,6 +1,6 @@
 # focuslyy — Claude Code Standing Instructions
 
-You are helping build **focuslyy**, an iOS deep-work app that seals (blocks) distracting apps for focus sessions, then turns those locked-in hours into visible output, streaks, and friendly competition. **Target launch: June 21, 2026.** Target user: Gen Z and millennials, with **ADHD-friendly UX as a first-class concern**, not an afterthought.
+You are helping build **focuslyy**, an iOS deep-work app that seals (blocks) distracting apps for focus sessions, then turns those locked-in hours into visible output, streaks, and friendly competition. **Target launch: July 10, 2026.** Target user: Gen Z and millennials, with **ADHD-friendly UX as a first-class concern**, not an afterthought.
 
 Read `docs/BUILD.md` before starting any new phase. Read `docs/prototype.html` (open it visually if you can) when you need to understand a screen's exact look and feel — it's the canonical visual reference.
 

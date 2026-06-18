@@ -16,6 +16,7 @@ interface ProfileState {
   defaultBlocklist: string[];
 
   phase: Phase; // 'day1' default for a brand-new user
+  hasOnboarded: boolean; // gates entry: funnel vs main app
 
   streakDays: number;
   bestStreak: number;
@@ -25,6 +26,7 @@ interface ProfileState {
   setName: (name: string) => void;
   setPlan: (dailyGoal: number, commitDays: number) => void;
   setPhase: (phase: Phase) => void;
+  setOnboarded: (value: boolean) => void;
   setIdentity: (id: string, provider: AuthProvider) => void;
   reset: () => void;
 }
@@ -39,6 +41,7 @@ const initial = {
   commitDays: 5,
   defaultBlocklist: [] as string[],
   phase: 'day1' as Phase,
+  hasOnboarded: false,
   streakDays: 0,
   bestStreak: 0,
   totalXp: 0,
@@ -52,6 +55,7 @@ export const useProfileStore = create<ProfileState>()(
       setName: (name) => set({ name }),
       setPlan: (dailyGoal, commitDays) => set({ dailyGoal, commitDays }),
       setPhase: (phase) => set({ phase }),
+      setOnboarded: (hasOnboarded) => set({ hasOnboarded }),
       setIdentity: (id, authProvider) => set({ id, authProvider }),
       reset: () => set(initial),
     }),

@@ -22,7 +22,7 @@ export default function AppTabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="focus"
         options={{
           title: 'Focus',
           tabBarIcon: ({ focused }) => <TabIcon name="focus" focused={focused} />,

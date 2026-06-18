@@ -5,6 +5,7 @@ import { colors } from '@/theme';
 export default function OnboardingLayout() {
   return (
     <Stack
+      initialRouteName="start"
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.espresso },

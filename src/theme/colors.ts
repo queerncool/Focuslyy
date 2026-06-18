@@ -18,6 +18,17 @@ export const colors = {
 export type ColorToken = keyof typeof colors;
 
 /**
+ * Background gradient tints — NOT new palette colors. Each is `espresso`
+ * blended a touch toward an accent for screen mood (kept dark and on-brand).
+ * Centralized here so components never inline hex.
+ */
+export const gradients = {
+  symptomWarm: ['#33150F', colors.espresso], // warmed toward crimson — cost-of-waiting
+  breakCalm: ['#13201D', colors.espresso], // cooled toward teal — break/positive
+  locked: ['#0E0A07', colors.espresso], // deepest focus background
+} as const;
+
+/**
  * Semantic aliases. Components should prefer these where a role exists,
  * falling back to raw tokens above. Both resolve to locked hexes only.
  */
