@@ -36,6 +36,7 @@ export default function RootLayout() {
             name="(session)"
             options={{ presentation: 'modal' }}
           />
+          <Stack.Screen name="invite" options={{ presentation: 'modal' }} />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>
