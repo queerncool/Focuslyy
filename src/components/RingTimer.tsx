@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, type ReactNode } from 'react';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { colors, fontFamily } from '@/theme';
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 interface RingTimerProps {
   /** Remaining fraction of the countdown, 0..1 (1 = full ring). */
@@ -20,7 +22,8 @@ interface RingTimerProps {
 
 /**
  * Amber arc countdown ring (the Locked-screen centerpiece).
- * Purely presentational: parent drives `progress` each tick.
+ * The arc eases to `progress` on every change, so it sweeps in on mount and
+ * glides between countdown ticks instead of jumping.
  */
 export function RingTimer({
   progress,
@@ -35,10 +38,30 @@ export function RingTimer({
   const cx = size / 2;
   const cy = size / 2;
   const circumference = 2 * Math.PI * r;
-  const dashOffset = circumference * (1 - clamped);
+
+  // Animate from empty on mount, then ease toward each new progress value.
+  const anim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(anim, {
+      toValue: clamped,
+      duration: 600,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [clamped, anim]);
+
+  const dashOffset = anim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [circumference, 0],
+  });
 
   return (
-    <View style={{ width: size, height: size }}>
+    <View
+      style={{ width: size, height: size }}
+      accessibilityRole="progressbar"
+      accessibilityValue={{ now: Math.round(clamped * 100), min: 0, max: 100 }}
+      accessibilityLabel={label ? `${label}${caption ? `, ${caption}` : ''}` : undefined}
+    >
       <Svg width={size} height={size}>
         <Defs>
           <LinearGradient id="ringArc" x1="0" y1="0" x2="1" y2="1">
@@ -56,7 +79,7 @@ export function RingTimer({
           fill="none"
         />
         {/* Progress arc — starts at 12 o'clock, sweeps clockwise */}
-        <Circle
+        <AnimatedCircle
           cx={cx}
           cy={cy}
           r={r}

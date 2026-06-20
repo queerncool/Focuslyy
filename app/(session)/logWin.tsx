@@ -10,9 +10,10 @@ import {
 } from 'react-native';
 import { Button, Display, KickerLabel, Screen } from '@/components';
 import { chipsForMode, SESSION_XP } from '@/lib/session';
+import { currentStreak } from '@/lib/stats';
+import { haptic } from '@/lib/haptics';
 import { formatDuration } from '@/lib/time';
 import {
-  useProfileStore,
   useQuizStore,
   useSessionStore,
   useSessionsHistoryStore,
@@ -29,12 +30,12 @@ export default function LogWin() {
   const sealBroken = broke === '1';
 
   const mode = useQuizStore((s) => s.mode);
-  const streakDays = useProfileStore((s) => s.streakDays);
 
   const task = useSessionStore((s) => s.task);
   const blockMin = useSessionStore((s) => s.blockMin);
   const blockedApps = useSessionStore((s) => s.blockedApps);
   const startedAt = useSessionStore((s) => s.startedAt);
+  const history = useSessionsHistoryStore((s) => s.sessions);
   const addSession = useSessionsHistoryStore((s) => s.addSession);
 
   const [note, setNote] = useState('');
@@ -47,15 +48,19 @@ export default function LogWin() {
       : 0;
   const durationMin = sealBroken ? Math.min(elapsedMin, blockMin) : blockMin;
 
-  // They just worked today, so the streak is at least 1. Real streak math
-  // (consecutive days from history) lands with Stats in Phase 4.
-  const streak = Math.max(streakDays, 1);
+  // The streak this session produces: real consecutive-day math over history,
+  // including the session we're about to save.
+  const streak = currentStreak([
+    ...history,
+    { startedAt: startedAt ?? Date.now() } as Session,
+  ]);
   const taskLabel = task.trim();
   const chips = chipsForMode(mode);
 
   const save = () => {
     if (savedRef.current) return;
     savedRef.current = true;
+    haptic.medium();
 
     const session: Session = {
       id: makeId(),
