@@ -8,7 +8,7 @@ import {
   OnboardingScreen,
 } from '@/components';
 import { PROGRESS } from '@/lib/onboarding';
-import { runPurchaseStub } from '@/lib/purchase';
+import { purchasePlan } from '@/lib/purchases';
 import { useProfileStore } from '@/state';
 import { colors, fontFamily, radius, spacing } from '@/theme';
 
@@ -16,7 +16,7 @@ export default function Discount() {
   const setSubscription = useProfileStore((s) => s.setSubscription);
 
   const claim = () =>
-    runPurchaseStub('monthly', {
+    purchasePlan('monthly', {
       subtitle: 'First month $5, then $10/mo',
       onSuccess: () => {
         setSubscription('monthly');

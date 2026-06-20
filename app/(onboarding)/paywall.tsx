@@ -10,7 +10,7 @@ import {
   Pill,
 } from '@/components';
 import { PROGRESS } from '@/lib/onboarding';
-import { runPurchaseStub } from '@/lib/purchase';
+import { purchasePlan } from '@/lib/purchases';
 import { useProfileStore, useQuizStore } from '@/state';
 import { colors, fontFamily, radius, spacing } from '@/theme';
 import type { SubscriptionTier } from '@/types';
@@ -35,7 +35,7 @@ export default function Paywall() {
   const [tier, setTier] = useState<Exclude<SubscriptionTier, null>>('yearly');
 
   const subscribe = () =>
-    runPurchaseStub(tier, {
+    purchasePlan(tier, {
       onSuccess: () => {
         setSubscription(tier);
         router.push({ pathname: '/saveAccount', params: { next: 'firstSeal' } });

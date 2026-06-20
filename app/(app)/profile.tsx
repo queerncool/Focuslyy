@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   Body,
   Button,
@@ -11,6 +11,7 @@ import {
 import { formatDuration } from '@/lib/time';
 import { currentStreak, longestStreak, totalMinutes, totalXp } from '@/lib/stats';
 import { displayHandle, initialOf } from '@/lib/user';
+import { restorePurchases } from '@/lib/purchases';
 import { useProfileStore, useSessionsHistoryStore } from '@/state';
 import { colors, fontFamily, radius, spacing } from '@/theme';
 
@@ -48,6 +49,16 @@ export default function ProfileTab() {
   const isSubscribed = subscriptionStatus === 'active';
 
   const openSaveAccount = () => router.push('/saveAccount');
+
+  const onRestore = async () => {
+    const result = await restorePurchases();
+    Alert.alert(
+      result === 'restored' ? 'Purchases restored' : 'Nothing to restore',
+      result === 'restored'
+        ? 'Your subscription is active on this device.'
+        : 'No previous purchases were found for this Apple ID.'
+    );
+  };
 
   return (
     <Screen style={styles.screen}>
@@ -121,6 +132,14 @@ export default function ProfileTab() {
             accessibilityHint="Sign in to save your streak and sessions"
           />
         )}
+
+        <Button
+          label="Restore purchases"
+          variant="tertiary"
+          onPress={onRestore}
+          style={styles.restoreBtn}
+          accessibilityHint="Restore a subscription bought on this Apple ID"
+        />
       </ScrollView>
     </Screen>
   );
@@ -240,5 +259,8 @@ const styles = StyleSheet.create({
   },
   signInBtn: {
     marginTop: spacing['2xl'],
+  },
+  restoreBtn: {
+    marginTop: spacing.sm,
   },
 });

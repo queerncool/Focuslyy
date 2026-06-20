@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Body, Button, Display, KickerLabel, Screen } from '@/components';
 import { haptic } from '@/lib/haptics';
+import { linkPurchaseAccount } from '@/lib/purchases';
 import { useProfileStore } from '@/state';
 import { colors, fontFamily, radius, spacing } from '@/theme';
 import type { AuthProvider } from '@/types';
@@ -14,6 +15,7 @@ import type { AuthProvider } from '@/types';
  */
 export default function SaveAccount() {
   const { next } = useLocalSearchParams<{ next?: string }>();
+  const id = useProfileStore((s) => s.id);
   const linkAccount = useProfileStore((s) => s.linkAccount);
   const subscriptionStatus = useProfileStore((s) => s.subscriptionStatus);
 
@@ -32,6 +34,8 @@ export default function SaveAccount() {
   const linkWith = (provider: Exclude<AuthProvider, 'anonymous'>) => {
     haptic.success();
     linkAccount(provider);
+    // Keep the (stubbed) subscription attached to the now-signed-in account.
+    if (id) linkPurchaseAccount(id);
     proceed();
   };
 

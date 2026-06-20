@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
   Pressable,
@@ -12,6 +12,7 @@ import { Button, Display, KickerLabel, Screen } from '@/components';
 import { chipsForMode, SESSION_XP } from '@/lib/session';
 import { currentStreak } from '@/lib/stats';
 import { haptic } from '@/lib/haptics';
+import { liftShield } from '@/lib/blocking';
 import { formatDuration } from '@/lib/time';
 import {
   useQuizStore,
@@ -40,6 +41,12 @@ export default function LogWin() {
 
   const [note, setNote] = useState('');
   const savedRef = useRef(false);
+
+  // The session is over the moment we reach this screen (normal end or broken
+  // seal), so lift the shield here — the single exit for every path.
+  useEffect(() => {
+    liftShield();
+  }, []);
 
   // Completed blocks count full length; a broken seal counts the time served.
   const elapsedMin =

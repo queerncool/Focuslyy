@@ -13,6 +13,7 @@ import { KickerLabel, Pill, RingTimer } from '@/components';
 import { formatClock } from '@/lib/time';
 import { useCountdown } from '@/lib/useCountdown';
 import { haptic } from '@/lib/haptics';
+import { applyShield } from '@/lib/blocking';
 import { useSessionStore } from '@/state';
 import { colors, fontFamily, gradients, radius, spacing } from '@/theme';
 
@@ -24,10 +25,12 @@ export default function Locked() {
   const blockedApps = useSessionStore((s) => s.blockedApps);
   const start = useSessionStore((s) => s.start);
 
-  // Stamp the real start time once, on entry.
+  // Stamp the real start time and raise the shield once, on entry. The shield
+  // stays up through the break and only lifts when the session is logged.
   useEffect(() => {
     start();
-  }, [start]);
+    applyShield(blockedApps);
+  }, [start, blockedApps]);
 
   const totalSec = blockMin * 60;
   const remaining = useCountdown(totalSec, () => {
