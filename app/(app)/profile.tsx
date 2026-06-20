@@ -1,4 +1,5 @@
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import {
   Body,
   Button,
@@ -29,6 +30,8 @@ export default function ProfileTab() {
   const name = useProfileStore((s) => s.name);
   const handle = useProfileStore((s) => s.handle);
   const authProvider = useProfileStore((s) => s.authProvider);
+  const subscriptionTier = useProfileStore((s) => s.subscriptionTier);
+  const subscriptionStatus = useProfileStore((s) => s.subscriptionStatus);
   const dailyGoal = useProfileStore((s) => s.dailyGoal);
   const commitDays = useProfileStore((s) => s.commitDays);
   const phase = useProfileStore((s) => s.phase);
@@ -42,12 +45,9 @@ export default function ProfileTab() {
   const xp = totalXp(sessions);
 
   const isAnonymous = authProvider === 'anonymous';
+  const isSubscribed = subscriptionStatus === 'active';
 
-  const promptSignIn = () =>
-    Alert.alert(
-      'Save your progress',
-      'Sign in with Apple arrives in the next update — your streak and sessions are safe on this device until then.'
-    );
+  const openSaveAccount = () => router.push('/saveAccount');
 
   return (
     <Screen style={styles.screen}>
@@ -62,12 +62,22 @@ export default function ProfileTab() {
           </View>
           <Title>{name.trim() || 'You'}</Title>
           <Text style={styles.handle}>@{displayHandle(name, handle)}</Text>
+          {(isSubscribed || !isAnonymous) && (
+            <View style={styles.badges}>
+              {isSubscribed && subscriptionTier && (
+                <Text style={styles.badge}>focuslyy {subscriptionTier} · active</Text>
+              )}
+              {!isAnonymous && (
+                <Text style={styles.badge}>Signed in with {authProvider}</Text>
+              )}
+            </View>
+          )}
         </View>
 
         {isAnonymous && (
           <Pressable
             accessibilityRole="button"
-            onPress={promptSignIn}
+            onPress={openSaveAccount}
             style={styles.saveCard}
           >
             <View style={styles.saveBody}>
@@ -106,7 +116,7 @@ export default function ProfileTab() {
           <Button
             label="Save your progress"
             variant="secondary"
-            onPress={promptSignIn}
+            onPress={openSaveAccount}
             style={styles.signInBtn}
             accessibilityHint="Sign in to save your streak and sessions"
           />
@@ -158,6 +168,17 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.mono,
     fontSize: 14,
     color: colors.muted,
+  },
+  badges: {
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginTop: spacing.xs,
+  },
+  badge: {
+    fontFamily: fontFamily.mono,
+    fontSize: 12,
+    color: colors.amberLight,
+    textTransform: 'capitalize',
   },
   saveCard: {
     flexDirection: 'row',

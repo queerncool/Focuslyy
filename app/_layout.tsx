@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useBrandFonts } from '@/theme';
+import { useProfileStore } from '@/state';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* no-op: splash may already be hidden */
@@ -12,6 +13,13 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useBrandFonts();
+  const ensureAnonymousId = useProfileStore((s) => s.ensureAnonymousId);
+
+  // Anonymous-default identity (§B.5): every install gets a stable UUID on
+  // first launch, which later aliases to a real account on sign-in.
+  useEffect(() => {
+    ensureAnonymousId();
+  }, [ensureAnonymousId]);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -37,6 +45,7 @@ export default function RootLayout() {
             options={{ presentation: 'modal' }}
           />
           <Stack.Screen name="invite" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="saveAccount" options={{ presentation: 'modal' }} />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>

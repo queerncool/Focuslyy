@@ -8,18 +8,28 @@ import {
   OnboardingScreen,
 } from '@/components';
 import { PROGRESS } from '@/lib/onboarding';
+import { runPurchaseStub } from '@/lib/purchase';
+import { useProfileStore } from '@/state';
 import { colors, fontFamily, radius, spacing } from '@/theme';
 
 export default function Discount() {
+  const setSubscription = useProfileStore((s) => s.setSubscription);
+
+  const claim = () =>
+    runPurchaseStub('monthly', {
+      subtitle: 'First month $5, then $10/mo',
+      onSuccess: () => {
+        setSubscription('monthly');
+        router.push({ pathname: '/saveAccount', params: { next: 'firstSeal' } });
+      },
+    });
+
   return (
     <OnboardingScreen
       progress={PROGRESS.discount}
       footer={
         <>
-          <Button
-            label="Claim my offer"
-            onPress={() => router.push('/firstSeal')}
-          />
+          <Button label="Claim my offer" onPress={claim} />
           <Button
             label="No thanks"
             variant="tertiary"

@@ -10,6 +10,7 @@ import {
   Pill,
 } from '@/components';
 import { PROGRESS } from '@/lib/onboarding';
+import { runPurchaseStub } from '@/lib/purchase';
 import { useProfileStore, useQuizStore } from '@/state';
 import { colors, fontFamily, radius, spacing } from '@/theme';
 import type { SubscriptionTier } from '@/types';
@@ -29,8 +30,17 @@ export default function Paywall() {
   const yrNum = useQuizStore((s) => s.yrNum) ?? 0;
   const projection = useQuizStore((s) => s.projection) ?? 'your time, back in your hands';
   const name = useProfileStore((s) => s.name).trim();
+  const setSubscription = useProfileStore((s) => s.setSubscription);
 
   const [tier, setTier] = useState<Exclude<SubscriptionTier, null>>('yearly');
+
+  const subscribe = () =>
+    runPurchaseStub(tier, {
+      onSuccess: () => {
+        setSubscription(tier);
+        router.push({ pathname: '/saveAccount', params: { next: 'firstSeal' } });
+      },
+    });
 
   return (
     <OnboardingScreen
@@ -39,7 +49,7 @@ export default function Paywall() {
         <>
           <Button
             label={name ? `Take my hours back, ${name} →` : 'Take my hours back'}
-            onPress={() => router.push('/firstSeal')}
+            onPress={subscribe}
           />
           <Button
             label="Maybe later"
