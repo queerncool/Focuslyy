@@ -7,7 +7,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import { colors, fontFamily, radius, spacing } from '@/theme';
+import { colors, elevation, fontFamily, radius, spacing } from '@/theme';
 
 type Variant = 'primary' | 'secondary' | 'tertiary';
 
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: colors.amber,
+    ...elevation.md,
   },
   secondary: {
     backgroundColor: 'transparent',

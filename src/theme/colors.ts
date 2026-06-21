@@ -18,6 +18,17 @@ export const colors = {
 export type ColorToken = keyof typeof colors;
 
 /**
+ * Hairline border tints — derived from locked tokens at low opacity (NOT new
+ * palette colors). Used for quiet, sleek 1px dividers and card edges instead of
+ * heavy strokes. Centralized so components never inline rgba.
+ */
+export const border = {
+  hairline: 'rgba(242,235,221,0.08)', // cream @ 8% — quiet edges on dark
+  subtle: 'rgba(242,235,221,0.14)', // cream @ 14% — a touch more definition
+  onLight: 'rgba(34,26,18,0.10)', // ink @ 10% — edges on cream surfaces
+} as const;
+
+/**
  * Background gradient tints — NOT new palette colors. Each is `espresso`
  * blended a touch toward an accent for screen mood (kept dark and on-brand).
  * Centralized here so components never inline hex.

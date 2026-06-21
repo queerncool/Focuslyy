@@ -5,7 +5,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import { colors, radius, spacing } from '@/theme';
+import { border, colors, elevation, radius, spacing } from '@/theme';
 
 interface CardProps {
   children: ReactNode;
@@ -32,12 +32,17 @@ export function Card({ children, tone = 'dark', style }: CardProps) {
 const styles = StyleSheet.create({
   base: {
     borderRadius: radius.xl,
-    padding: spacing.lg,
+    padding: spacing.xl,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   dark: {
     backgroundColor: colors.ink,
+    borderColor: border.hairline,
+    ...elevation.sm,
   },
   light: {
     backgroundColor: colors.cream,
+    borderColor: border.onLight,
+    ...elevation.sm,
   },
 });

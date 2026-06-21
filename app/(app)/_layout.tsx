@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
+import { StyleSheet } from 'react-native';
 import { TabIcon } from '@/components/TabIcon';
-import { colors, fontFamily } from '@/theme';
+import { border, colors, fontFamily } from '@/theme';
 
 /** Main app shell: four tabs — Focus (default), Friends, Stats, Profile. */
 export default function AppTabsLayout() {
@@ -12,12 +13,16 @@ export default function AppTabsLayout() {
         tabBarInactiveTintColor: colors.muted,
         tabBarStyle: {
           backgroundColor: colors.espresso,
-          borderTopColor: colors.ink,
+          borderTopColor: border.hairline,
+          borderTopWidth: StyleSheet.hairlineWidth,
         },
         tabBarLabelStyle: {
           fontFamily: fontFamily.mono,
           fontSize: 11,
           letterSpacing: 0.5,
+        },
+        tabBarItemStyle: {
+          paddingTop: 4,
         },
       }}
     >

@@ -36,19 +36,20 @@ const styles = StyleSheet.create({
   display: {
     fontFamily: fontFamily.displayHeavy,
     fontSize: 34,
-    lineHeight: 40,
-    letterSpacing: -0.5,
+    lineHeight: 41,
+    letterSpacing: -0.8,
   },
   title: {
     fontFamily: fontFamily.displayHeavy,
     fontSize: 24,
     lineHeight: 30,
-    letterSpacing: -0.3,
+    letterSpacing: -0.5,
   },
   body: {
     fontFamily: fontFamily.display,
     fontSize: 16,
-    lineHeight: 23,
+    lineHeight: 24,
+    letterSpacing: 0.1,
   },
   accent: {
     fontFamily: fontFamily.accent,
