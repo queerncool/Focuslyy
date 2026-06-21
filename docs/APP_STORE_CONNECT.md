@@ -52,12 +52,12 @@ below and enter its values.
 |---------|------------------|-----------------------------|----------|----------|
 | Weekly  | Focuslyy Weekly  | `app.focuslyy.ios.weekly`   | 1 Week   | $4.99    |
 | Monthly | Focuslyy Monthly | `app.focuslyy.ios.monthly`  | 1 Month  | $9.99    |
-| Yearly  | Focuslyy Yearly  | `app.focuslyy.ios.yearly`   | 1 Year   | $79.99   |
+| Yearly  | Focuslyy Yearly  | `app.focuslyy.ios.yearly`   | 1 Year   | $49.99   |
 
 For each plan, after creating it you must also fill:
 - **Subscription Duration:** as in the table.
 - **Subscription Prices:** click **Add**, pick your country/price ($4.99 /
-  $9.99 / $79.99 are the standard tiers closest to $5 / $10 / $80).
+  $9.99 / $49.99 are the standard tiers closest to $5 / $10 / $50).
 - **App Store Localization:** add a **Display Name** (e.g., "Weekly") and a
   short **Description** (e.g., "Unlimited focus sessions, billed weekly.").
 - **Review Information:** a screenshot of the paywall (you'll add this once you

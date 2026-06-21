@@ -21,7 +21,7 @@ const TILES: {
   period: string;
   best?: boolean;
 }[] = [
-  { tier: 'yearly', price: '$80', period: 'per year', best: true },
+  { tier: 'yearly', price: '$49.99', period: 'per year', best: true },
   { tier: 'monthly', price: '$10', period: 'per month' },
   { tier: 'weekly', price: '$5', period: 'per week' },
 ];
@@ -74,7 +74,7 @@ export default function Paywall() {
         </View>
         <View style={[styles.compareCard, styles.costs]}>
           <KickerLabel color={colors.teal}>focuslyy costs</KickerLabel>
-          <Text style={[styles.bigNum, { color: colors.teal }]}>22¢</Text>
+          <Text style={[styles.bigNum, { color: colors.teal }]}>14¢</Text>
           <Body color={colors.cream} style={styles.compareSub}>
             a day on the yearly plan — less than one coffee a week.
           </Body>

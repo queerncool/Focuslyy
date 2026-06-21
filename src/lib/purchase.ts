@@ -4,7 +4,7 @@ import type { SubscriptionTier } from '@/types';
 const LABELS: Record<Exclude<SubscriptionTier, null>, string> = {
   weekly: 'Weekly · $5/wk',
   monthly: 'Monthly · $10/mo',
-  yearly: 'Yearly · $80/yr',
+  yearly: 'Yearly · $49.99/yr',
 };
 
 /**

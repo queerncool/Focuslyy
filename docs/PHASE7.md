@@ -126,7 +126,7 @@ in the **RevenueCat dashboard**:
 | -------------- | ----- | ------------------------------ |
 | Weekly         | $5    |                                |
 | Monthly        | $10   | + a **$5 intro** first month   |
-| Yearly         | $80   | "Best value" tile              |
+| Yearly         | $49.99 | "Best value" tile             |
 
 Create a RevenueCat **offering** whose packages map to these, and note the
 public **API key**.
