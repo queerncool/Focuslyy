@@ -12,7 +12,7 @@ import {
 import { recommendedApps, SEAL_APPS } from '@/lib/session';
 import { haptic } from '@/lib/haptics';
 import { useQuizStore, useSessionStore } from '@/state';
-import { colors, fontFamily, radius, spacing } from '@/theme';
+import { border, colors, fontFamily, radius, spacing } from '@/theme';
 
 export default function SealApps() {
   const distractions = useQuizStore((s) => s.distractions);
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: border.subtle,
     backgroundColor: colors.ink,
   },
   rowOn: {

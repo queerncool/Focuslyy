@@ -16,7 +16,7 @@ import {
 } from '@/components';
 import { planMonthlyHours, PROGRESS, topBlocklist } from '@/lib/onboarding';
 import { useProfileStore, useQuizStore } from '@/state';
-import { colors, fontFamily, radius, spacing } from '@/theme';
+import { border, colors, fontFamily, radius, spacing } from '@/theme';
 
 const GOAL_OPTIONS = [
   { value: 1, label: '1H' },
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     minHeight: 56,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: border.subtle,
     backgroundColor: colors.ink,
     paddingHorizontal: spacing.lg,
     fontFamily: fontFamily.display,

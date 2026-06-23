@@ -20,7 +20,7 @@ import {
   useSessionsHistoryStore,
 } from '@/state';
 import type { Session } from '@/types';
-import { colors, fontFamily, radius, spacing } from '@/theme';
+import { border, colors, fontFamily, radius, spacing } from '@/theme';
 
 function makeId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: border.subtle,
     backgroundColor: colors.ink,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.base,
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   chip: {
     borderRadius: radius.pill,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: border.subtle,
     backgroundColor: colors.ink,
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,

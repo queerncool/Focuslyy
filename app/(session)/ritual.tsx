@@ -5,7 +5,7 @@ import { Body, Button, KickerLabel, Screen } from '@/components';
 import { formatClock } from '@/lib/time';
 import { useCountdown } from '@/lib/useCountdown';
 import { haptic } from '@/lib/haptics';
-import { colors, fontFamily, radius, spacing } from '@/theme';
+import { border, colors, fontFamily, radius, spacing } from '@/theme';
 
 const RITUAL_SEC = 30;
 
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: border.subtle,
     backgroundColor: colors.ink,
   },
   cueOn: {

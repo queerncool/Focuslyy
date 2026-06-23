@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     width: '100%',
     minHeight: 56,
     borderRadius: radius.pill,
-    borderWidth: 1.5,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: 'rgba(229,86,75,0.5)',
     overflow: 'hidden',
     alignItems: 'center',

@@ -12,7 +12,7 @@ import {
 import { PROGRESS } from '@/lib/onboarding';
 import { purchasePlan } from '@/lib/purchases';
 import { useProfileStore, useQuizStore } from '@/state';
-import { colors, fontFamily, radius, spacing } from '@/theme';
+import { border, colors, fontFamily, radius, spacing } from '@/theme';
 import type { SubscriptionTier } from '@/types';
 
 const TILES: {
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: border.subtle,
     backgroundColor: colors.ink,
   },
   tileSelected: {

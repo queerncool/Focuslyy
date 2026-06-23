@@ -23,7 +23,7 @@ import {
   tasksForMode,
 } from '@/lib/session';
 import { useQuizStore, useSessionStore } from '@/state';
-import { colors, fontFamily, radius, spacing } from '@/theme';
+import { border, colors, fontFamily, radius, spacing } from '@/theme';
 
 const LENGTH_OPTIONS = BLOCK_LENGTHS.map((m) => ({ value: m, label: String(m) }));
 
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: border.subtle,
     backgroundColor: colors.ink,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.base,
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   chip: {
     borderRadius: radius.pill,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: border.subtle,
     backgroundColor: colors.ink,
     paddingHorizontal: spacing.base,
     paddingVertical: spacing.sm,
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     minHeight: 52,
     borderRadius: radius.lg,
     borderWidth: 1.5,
-    borderColor: colors.ink,
+    borderColor: border.subtle,
     backgroundColor: colors.ink,
     paddingHorizontal: spacing.lg,
     fontFamily: fontFamily.mono,
