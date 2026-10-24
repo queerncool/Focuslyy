@@ -9,6 +9,7 @@ import {
   OnboardingScreen,
   RingTimer,
 } from '@/components';
+import { hasDemoVideo } from '@/lib/demo';
 import { PROGRESS } from '@/lib/onboarding';
 import { spacing } from '@/theme';
 
@@ -17,11 +18,21 @@ export default function Start() {
     <OnboardingScreen
       progress={PROGRESS.start}
       footer={
-        <Button
-          label="Find out in 60 seconds"
-          onPress={() => router.push('/q1')}
-          accessibilityHint="Starts a 60-second quiz"
-        />
+        <>
+          <Button
+            label="Find out in 60 seconds"
+            onPress={() => router.push('/q1')}
+            accessibilityHint="Starts a 60-second quiz"
+          />
+          {hasDemoVideo && (
+            <Button
+              variant="tertiary"
+              label="Watch the demo"
+              onPress={() => router.push('/demo')}
+              accessibilityHint="Plays a short video of a focus session"
+            />
+          )}
+        </>
       }
     >
       <View style={styles.hero}>
