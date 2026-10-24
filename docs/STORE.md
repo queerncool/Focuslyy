@@ -92,11 +92,6 @@ Figma/Canva using the brand palette in `src/theme/colors.ts`).
 15–30s, no audio needed. Screen-record one full session: Set Session → Seal →
 Locked → Break → Log Win → Share. Human-paced, not rushed.
 
-The same recording powers the in-app **"Watch the demo"** link on the Start
-screen. Export it as an .mp4, host it (e.g. `https://focuslyy.app/demo.mp4`),
-and set `DEMO_VIDEO` in `src/lib/demo.ts` to that URL. The link stays hidden
-until you do.
-
 ---
 
 ## 4. App Privacy disclosures (App Store Connect → App Privacy)

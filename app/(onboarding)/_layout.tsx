@@ -12,11 +12,6 @@ export default function OnboardingLayout() {
         animation: 'slide_from_right',
         gestureEnabled: true,
       }}
-    >
-      <Stack.Screen
-        name="demo"
-        options={{ presentation: 'modal', animation: 'default' }}
-      />
-    </Stack>
+    />
   );
 }

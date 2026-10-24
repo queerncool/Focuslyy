@@ -165,7 +165,7 @@ Submit. Expect 24-72h review. Be ready for one revision request.
 
 Architecture: stack navigator under `app/(onboarding)/`. Progress bar component at top of every screen. Progress values: start 4 · q1 12 · q2 24 · q3 36 · results 48 · symptoms 56 · help 64 · reviews 72 · features 80 · plan 90 · paywall 96 · discount 98 · firstSeal 100.
 
-**Start** — Hook screen. Big ring icon (countdown-style) at top. Headline: "While you scroll, everyone else is building." Subhead about the average person losing 4+ hours a day — note: this screen makes claims about the average person only, never about "you," because we haven't asked anything yet. CTA: "Find out in 60 seconds." Secondary text link: "Watch the demo" → `demo` modal that plays the App Preview video (STORE.md §3), with "Find out in 60 seconds" pinned below it. The link only renders once a video is set in `src/lib/demo.ts` — never a dead-end button.
+**Start** — Hook screen. Big ring icon (countdown-style) at top. Headline: "While you scroll, everyone else is building." Subhead about the average person losing 4+ hours a day — note: this screen makes claims about the average person only, never about "you," because we haven't asked anything yet. CTA: "Find out in 60 seconds."
 
 **Q1 — Phone hours (multi-choice, single-select)** — "How many hours a day are you on your phone?" Options: Under 2 hrs / 2–4 hrs / 4–6 hrs / 6+ hrs. Save selection to `quizStore.hoursBand`. Compute and save:
 
