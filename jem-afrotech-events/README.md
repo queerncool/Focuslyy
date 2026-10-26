@@ -30,3 +30,10 @@ The unlock state is kept in localStorage key `jem_afrotech26`; `?unlock=1` (used
   `AfroTech Category`; Meta `Lead`; TikTok `SubmitForm`.
 - Jem signup links carry `source=afrotech_2026_*` (page: list, creator, brand; email: email_creator, email_brand).
 - Revenue: Brevo list 27 contacts whose SUBSCRIPTION_STATUS / PAID_START_DATE show a paid plan after AT26_DATE.
+
+## Carousels and post times
+
+- `carousels/slides.py <out>` renders the Instagram slides. `carousels/slides.py <out> threads` renders the Threads version, where "Comment LINK" becomes "Link in replies".
+- `carousels/render.js <html dir> <png dir>` turns the slides into 1080×1350 PNGs and flags any text overflow.
+- `carousels/captions.md` holds every caption, DM reply and Threads first reply, plus their scheduled times.
+- `best-times/` has the @jemsocialapp timing analysis behind those times (Instagram 7 pm CT, Threads 1 pm CT). Re-run it before scheduling the next campaign.

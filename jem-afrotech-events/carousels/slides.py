@@ -1,6 +1,10 @@
 """Builds the three AfroTech carousels as one HTML file per slide (1080x1350). usage: python3 -I slides.py <out_dir>"""
 import os, sys, html, json
 OUT = sys.argv[1]; os.makedirs(OUT, exist_ok=True)
+# Threads has no comment-to-DM automation, so its CTA points to the link in the first reply
+THREADS = len(sys.argv) > 2 and sys.argv[2] == 'threads'
+CTA_FOOT, CTA_BOX, CTA_P = (('Link in replies', 'See replies ↓', 'The full list is in the first reply, with RSVP links, sorted by type. Free.') if THREADS else
+                            ('Comment LINK', 'Comment LINK', 'We’ll DM you the full list with RSVP links, sorted by type. Free.'))
 e = lambda s: html.escape(s, quote=True)
 
 GREEN = dict(when='Sun, Nov 1 · 4–7 PM', name='The Green Room 🌿', where='Sanctuary EaDo · 2108 Leeland St', tag='Free with RSVP')
@@ -120,7 +124,7 @@ for key, d in DECKS.items():
         tg = ''.join(f"<span class='tag {tagcls(t)}'>{e(t)}</span>" for t in tags)
         slides.append(page(f"<div class='z ev'><div class='top'><div class='big'>{i:02d}</div><div class='chip'>{e(when.upper())}</div></div>"
                            f"<h2>{e(name)}</h2><div class='where'>📍 {e(where)}</div><div class='why'>{e(why)}</div><div class='tags'>{tg}</div></div>"
-                           + foot(i + 1, n, 'Comment LINK for all 101'), 'light ev'))
+                           + foot(i + 1, n, f'{CTA_FOOT} for all 101'), 'light ev'))
     one = len(d['ours']) == 1
     ex = d.get('extra')
     cards = ''.join(f"<div class='card'><div class='w'>{e(o['when'])}</div><h3>{e(o['name'])}</h3><div class='p'>{e(o['where'])} · {e(o['tag'])}</div>"
@@ -130,12 +134,12 @@ for key, d in DECKS.items():
                        f"<h2>Come find <span class='acc'>us.</span></h2><div class='sub'>{'The AfroTech week event we’re part of.' if one else 'The two AfroTech week events we’re part of.'}</div>{cards}</div>"
                        + foot(n - 1, n, 'See you there'), 'dark ours'))
     slides.append(page("<div class='z cta'><div class='pill'><i></i>All 101 events · one list</div>"
-                       "<h2>Want all 101?<br><span class='box'>Comment LINK</span></h2>"
-                       "<p>We’ll DM you the full list with RSVP links, sorted by type. Free.</p>"
+                       f"<h2>Want all 101?<br><span class='box'>{CTA_BOX}</span></h2>"
+                       f"<p>{CTA_P}</p>"
                        "<div class='stats'><div class='st'><b>23</b><span>Parties</span></div><div class='st'><b>42</b><span>Networking</span></div>"
                        "<div class='st'><b>12</b><span>Career</span></div><div class='st'><b>34</b><span>Free events</span></div></div>"
                        "<div class='share'>📲 Going with friends? Send them this.</div></div>"
-                       + foot(n, n, 'Comment LINK'), 'pink cta'))
+                       + foot(n, n, CTA_FOOT), 'pink cta'))
     files = []
     for j, s in enumerate(slides, 1):
         fn = f'{key}-{j:02d}.html'; open(f'{OUT}/{fn}', 'w').write(s); files.append(fn)

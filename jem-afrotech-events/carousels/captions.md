@@ -7,7 +7,7 @@ Auto-DM keyword: `link` (set the reply per post so each keeps its own link).
 
 ---
 
-## 1. creators · post today, mon oct 26
+## 1. creators · instagram mon oct 26, 7:00 pm ct
 
 **caption**
 
@@ -53,7 +53,7 @@ see you out there!! – bree 💗
 
 ---
 
-## 2. brands · post thu oct 29
+## 2. brands · instagram thu oct 29, 7:00 pm ct
 
 **caption**
 
@@ -97,7 +97,7 @@ and if you need creators for an activation, that's literally what jem social doe
 
 ---
 
-## 3. founders · post mon nov 2
+## 3. founders · instagram mon nov 2, 7:00 pm ct
 
 **caption**
 
@@ -141,7 +141,109 @@ go get it this week 🚀 – bree
 
 ---
 
+## threads versions
+
+Threads has no comment-to-DM automation, so the link goes in the first reply (AdaptlyPost posts it about 10 seconds after the carousel).
+The Threads slides swap "Comment LINK" for "Link in replies" / "See replies ↓" (`python3 slides.py <out> threads`). Slides 01 and 08 are the same as Instagram.
+Each link uses `utm_source=threads`, so Threads signups show up as their own source in Brevo (AT26_SOURCE) and GA4.
+
+### creators · threads mon oct 26, 1:00 pm ct
+
+**caption**
+
+```text
+afrotech is next week and there are 101 events on the calendar 😮‍💨
+
+we went through every single one so you don't have to 🫡
+
+swipe for the 6 rooms creators should be in 👀📸
+
+come find us too 🫶
+🌿 the green room · sun
+💻 sapphic hour · thu
+
+all 101 are linked in the replies 👇
+
+which one are you pulling up to? tag your plus one 🎟️
+
+#afrotech
+```
+
+**first reply**
+
+```text
+here's all 101 afrotech events in one place, sorted by type 🔥
+
+https://www.jem.social/afrotech-2026-events?utm_source=threads&utm_medium=social&utm_campaign=afrotech26&utm_content=creators
+
+pop your email in to unlock the full list and we'll send a copy to your inbox too 📩
+```
+
+### brands · threads thu oct 29, 1:00 pm ct
+
+**caption**
+
+```text
+brands 👀 heading to afrotech? consider this your field trip 🚌
+
+swipe for the 6 activations worth seeing irl
+(aka the ones your cmo is gonna ask about 😭)
+
+wanna meet creators? 🌿
+pull up to the green room on sunday. we're a sponsor, come say hi 🫶
+
+all 101 events are linked in the replies 👇
+
+📲 send this to your marketing team chat rn
+
+#afrotech
+```
+
+**first reply**
+
+```text
+every afrotech event in one place, sorted by type 🔥
+
+https://www.jem.social/afrotech-2026-events?utm_source=threads&utm_medium=social&utm_campaign=afrotech26&utm_content=brands
+
+unlock it with your email and we'll send a copy to your inbox 📩
+
+and if you need creators for an activation, that's literally what jem social does 😉
+```
+
+### founders · threads mon nov 2, 1:00 pm ct
+
+**caption**
+
+```text
+founders, it's officially afrotech week 🚀
+
+your calendar is about to be chaos. we went through all 101 events so you don't have to 🫡
+
+swipe for the 6 worth blocking off time for ➡️
+
+come find us thursday at sapphic hour 💻💖
+
+the full list of 101 is linked in the replies 👇
+
+📲 send this to the founder in your group chat who's "just networking" this week 😭
+
+#afrotech
+```
+
+**first reply**
+
+```text
+the full afrotech list, all 101 events sorted by type 🔥
+
+https://www.jem.social/afrotech-2026-events?utm_source=threads&utm_medium=social&utm_campaign=afrotech26&utm_content=founders
+
+drop your email to unlock it and we'll send a copy to your inbox 📩 go get it this week 🚀
+```
+---
+
 ### notes
 
 - slide copy only uses details from the events' own listings. venues marked "tba" or "shared after rsvp" are shown that way on purpose.
 - the dots before the hashtags push them below the "more" cut-off so the caption reads clean.
+- post times come from @jemsocialapp's own analytics, see `best-times.md`.
