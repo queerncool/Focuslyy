@@ -7,12 +7,14 @@ Tool results are read from this Claude session's transcript, so large outputs ne
   build    renders fieldData, writes update batches to ~/jem-sync/out/
   report   one-paragraph summary for Telegram
 """
-import json, os, re, sys, glob, html, hashlib, statistics, subprocess, datetime, io, urllib.request
+import json, os, re, sys, glob, html, hashlib, statistics, subprocess, datetime, io, urllib.request, unicodedata
 W = os.path.expanduser('~/jem-sync'); os.makedirs(W, exist_ok=True)
 SITE_ID, COLL = '67b0d09acc5bda1c5c04566f', '6adc28d2f2806b611dd3a207'
 SITE, SIGNUP, CDN = 'https://www.jem.social', 'https://app.jem.social/signup', 'https://cdn.prod.website-files.com/'
 MAX_NEW, MAX_REFRESH, REFRESH_DAYS = int(os.environ.get('MAX_NEW', 10)), int(os.environ.get('MAX_REFRESH', 5)), 27
 SHOW, MIN_BUILD, MIN_INDEX = 20, 5, 10
+MAX_ER = 20.0     # engagement above this is treated as a data error and left out
+FPV = 'v2:'       # bump when page rules change; older pages get re-rendered as refreshes
 REFRESH_DAYS = int(os.environ.get('REFRESH_DAYS', REFRESH_DAYS))
 NICHES = ['fitness', 'beauty', 'fashion', 'food', 'lifestyle', 'travel', 'wellness', 'tech', 'gaming']
 PLAT = {'instagram': ('Instagram', 'https://www.instagram.com/{}/'), 'tiktok': ('TikTok', 'https://www.tiktok.com/@{}'),
@@ -37,7 +39,8 @@ ROLE = {'creator', 'coach', 'trainer', 'influencer', 'blogger', 'vlogger', 'mode
         'fashion', 'food', 'foodie', 'travel', 'pro', 'aging', 'community', 'ugc', 'content', 'personal', 'mua', 'stylist', 'chef'}
 def clean_name(raw, handle):
     # Jem names often carry bio text: "BRITTFIT MIAMI 🌴 Fitness community", "Alex P | Fitness Coach"
-    s = re.split(r'\s[|•·–—/-]\s|\s*[|•·]\s*|,', raw or '')[0]
+    s = unicodedata.normalize('NFKC', raw or '')    # fancy-font letters (e.g. Fraktur) -> plain
+    s = re.split(r'\s[|•·–—/-]\s|\s*[|•·]\s*|,', s)[0]
     s = re.split(r'[^\w\s.\'-]', s)[0]          # stop at the first emoji or symbol
     words = s.split()
     while len(words) > 1 and words[-1].lower().strip('.') in ROLE: words.pop()
@@ -133,7 +136,8 @@ def cmd_plan():
     def age(p):
         d = (p['f'].get('data-updated') or '')[:10]
         return (today - datetime.date.fromisoformat(d)).days if d else 999
-    old = sorted([p for p in pages if not p['draft'] and age(p) >= REFRESH_DAYS], key=age, reverse=True)[:MAX_REFRESH]
+    stale = lambda p: age(p) >= REFRESH_DAYS or not (p['f'].get('data-fingerprint') or '').startswith(FPV)
+    old = sorted([p for p in pages if not p['draft'] and stale(p)], key=age, reverse=True)[:MAX_REFRESH]
     work = new + old
     checks = set()
     for p in work:
@@ -159,7 +163,7 @@ def candidates(res, exclude):
         p, plat = r.get('profile') or {}, (r.get('platform') or '').lower()
         u = (p.get('username') or '').strip().lstrip('@')
         f, er = p.get('followers'), p.get('engagement_percent')
-        if plat not in PLAT or not u or not p.get('picture') or not f or er is None or er <= 0 or f < 5000: continue
+        if plat not in PLAT or not u or not p.get('picture') or not f or er is None or er <= 0 or er > MAX_ER or f < 5000: continue
         if u.lower() in exclude or u.lower() in seen: continue
         seen.add(u.lower())
         rows.append({'u': u, 'hs': slugify(u), 'name': clean_name(p.get('full_name'), u), 'pic': p['picture'],
@@ -264,7 +268,7 @@ def render(p, data, plan, old, approved_new):
     table = ('<div class="jp-table"><div class="jp-row jp-row-head"><div class="jp-th">#</div><div class="jp-th">Creator</div><div class="jp-th">Platform</div>'
              '<div class="jp-th jp-th-right">Followers</div><div class="jp-th jp-th-right">Engagement</div><div class="jp-th jp-th-right">Contact</div></div>'
              f'<div class="jp-rows">{trs}<a class="jp-more" href="{SIGNUP}">{more_html}</a></div></div>')
-    fp = hashlib.md5(json.dumps([total, [(r['u'], r['f'], round(r['er'], 2), r['plat']) for r in rows]]).encode()).hexdigest()
+    fp = FPV + hashlib.md5(json.dumps([total, [(r['u'], r['f'], round(r['er'], 2), r['plat']) for r in rows]]).encode()).hexdigest()
     prev = f.get('data-fingerprint')
     pulled = (datetime.date.fromisoformat(f['data-updated'][:10]) if prev == fp and f.get('data-updated') else datetime.date.today())
     M, Mon = month(pulled), pulled.strftime('%b %Y')
@@ -342,7 +346,7 @@ def render(p, data, plan, old, approved_new):
         'hero-button-text': f'See all {total:,} creators, free for 7 days', 'creator-total': f'{total:,}',
         'stat-median-engagement': fer(med), 'stat-follower-range': f'{fnum(lo)}–{fnum(hi)}', 'stat-top-platform-share': f'{share}%',
         'stat-top-platform-label': f'on {PLAT[top][0]}', 'list-heading': f'{N} {city} {niche} creators',
-        'method-note': f'How this list was made: Jem Social creators tagged {niche} and based in the {city} area, with at least 5,000 followers, sorted by engagement rate. Data pulled from Jem Social on {pulled.strftime("%B")} {pulled.day}, {pulled.year}.',
+        'method-note': f'How this list was made: Jem Social creators tagged {niche} and based in the {city} area, with at least 5,000 followers, sorted by engagement rate. Engagement rates above {MAX_ER:g}% are left out as likely data errors. Data pulled from Jem Social on {pulled.strftime("%B")} {pulled.day}, {pulled.year}.',
         'band-heading': f'Reach {city} {niche} creators directly', 'band-text': f'See all {total:,}, then run the whole campaign in one place.',
         'steps-heading': f'How to run a {niche} campaign with {city} creators', 'seo-title': title, 'meta-description': meta,
         'robots': 'index, follow' if approved and N >= MIN_INDEX else 'noindex, follow', 'updated-label': f'Updated {M}',
