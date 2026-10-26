@@ -1,12 +1,33 @@
-# Jem Social city pages: weekly sync
+# Jem Social city pages: daily build
 
-This folder is not part of the focuslyy app. It holds the script for the scheduled job that fills
-jem.social's "City Influencer Pages" Webflow collection with real Jem Social creator data.
+`jem_sync.py` builds the data-backed city pages at jem.social/influencers/... (Webflow collection
+"City Influencer Pages"). It works down the priority list from the SEO plan: each city's hub page
+("{city} influencers") and food page ("{city} foodie") first, then fitness, beauty and fashion pages.
 
-- `jem_sync.py`: renders each page from Jem Social search results (`plan` → `photos` → `upload` → `build` → `report`).
-  The step-by-step runbook is in the scheduled task's prompt.
-- Queue: draft items in the Webflow collection. The job builds up to 10 queued pages and refreshes up to 5 pages
-  older than 27 days per run.
-- Go-live gate: the **Approved** switch on each CMS item. Unapproved pages stay `noindex, follow` and are never
-  pushed to the live site by the job.
-- Removal requests: add the handle to **Exclude handles** on any item; the next run drops it everywhere.
+- **Webflow:** read and written directly through the Webflow API. The cloud environment's network secret
+  adds the token; a `WEBFLOW_TOKEN` variable works too.
+- **Jem data:** comes from `search_influencers` calls (Jem Social connector) made in the same Claude
+  session. The script reads their results from the session transcript.
+
+## Daily run
+
+1. `python3 jem_sync.py plan` picks up to 6 new pages and 4 stale ones (27+ days old, or built under
+   older page rules). It prints one `search_influencers` argument set per page.
+2. Make those searches.
+3. `python3 jem_sync.py run` picks creators, uploads photos, writes and publishes the pages, and syncs
+   robots tags. It's safe to rerun.
+4. `python3 jem_sync.py report` prints a one-paragraph summary for Telegram.
+
+## Page rules
+
+- **Building:** a page is built only with 5+ creators who pass the filters:
+  - 5k+ followers
+  - engagement between 0 and 20%
+  - a photo
+  - for niche pages, a profile name that doesn't point to a different niche
+
+  New pages go live as `noindex, follow`.
+- **Indexing:** a page is indexed only when its Approved switch is on and it shows 10+ creators.
+  `python3 jem_sync.py approve SLUG...` approves pages, publishes them, and prints the 301s to add in
+  Webflow (from the page's Old URLs field).
+- **Too few creators:** pages with fewer than 5 are saved as drafts marked `skip:` and retried after 60 days.
