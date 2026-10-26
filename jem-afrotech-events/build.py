@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Builds the HtmlEmbed snippets for jem.social/afrotech-2026-events from Keith Azodeh's AfroTech sheet.
+"""Builds the HtmlEmbed snippets for jem.social/afrotech-2026-events from the AfroTech 2026 events sheet.
 usage: python3 -I build.py <afrotech.xlsx> <out_dir>
 """
 import openpyxl, sys, os, re, html, datetime, json, collections
@@ -60,6 +60,18 @@ for d in raw:
                        ptxt=ptxt, pk=pk, type=str(d['Type'] or 'Community').strip(), cats=cats,
                        venue=venue, addr=addr, desc=desc, full=full))
 
+JEM_EVENTS = [
+    dict(date=datetime.date(2026, 11, 1), s=16 * 60, when='4:00 PM', until='7:00 PM', name='The Green Room 🌿',
+         host='Sanctuary EaDo × Mingle & Muse · Jem Social is a sponsor', link='https://posh.vip/e/the-green-room-23',
+         ptxt='Free', pk='free', type='Jem Social', cats=['networking', 'social'], venue='Sanctuary EaDo', addr='2108 Leeland St, Houston',
+         desc="Fashion, tech, sustainability and culture in one room. A Brooklyn-inspired pop-up with local sustainable designers, a community clothing swap, interactive tech experiences (Jem Social included), music and drinks. Plus the panel Know Your Rights: Protecting What You Create, with Jem Social's Bree on it. Free with RSVP."),
+    dict(date=datetime.date(2026, 11, 5), s=20 * 60, when='8:00 PM', until='12:00 AM', name='Sapphic Hour 💻💖',
+         host='LesbianLand × Jem Social', link='https://posh.vip/e/an-official-afrotech-speed-networking-mix-mingle-for-wlw',
+         ptxt='From $11.99', pk='paid', type='Jem Social', cats=['networking', 'social'], venue='Avant Garden', addr='411 Westheimer Rd, Houston',
+         desc="Speed networking and mix & mingle for women who love women in tech, and the tech-curious. Jem Social is partnering with LesbianLand on the night, and Jem Social's Bree is co-hosting. All ticket sales are final."),
+]
+for j in JEM_EVENTS: j['full'] = j['desc']; j['jem'] = True
+events += JEM_EVENTS
 events.sort(key=lambda x: (x['date'], x['s'], x['name'].lower()))
 by_day = collections.OrderedDict()
 for ev in events: by_day.setdefault(ev['date'], []).append(ev)
@@ -76,17 +88,18 @@ first, last = min(by_day), max(by_day)
 def dayname(d, short=False): return d.strftime('%a' if short else '%A') + (f' {d.day}' if short else f', {d:%b} {d.day}')
 
 # ---------- markup ----------
-def card(ev):
-    keys = ev['cats'] + [ev['type'].lower()] + (['free'] if ev['pk'] == 'free' else [])
+def card(ev, show_day=False, cls=''):
+    tkey = ev['type'].lower().replace(' ', '-')
+    keys = ev['cats'] + [tkey] + (['free'] if ev['pk'] == 'free' else []) + [f"d{ev['date'].day}"]
     title = esc(ev['name'])
     if ev['link'].startswith('http'):
         title = f"<a href='{esc(ev['link'])}' target='_blank' rel='noopener nofollow'>{title}<span class='at-ext' aria-hidden='true'>↗</span></a>"
     place = ' · '.join(p for p in [esc(ev['venue']), esc(ev['addr']) if ev['addr'] and ev['addr'].lower() not in ev['venue'].lower() else ''] if p) or 'Venue TBA'
     meta = place + (f" · Hosted by {esc(ev['host'])}" if ev['host'] else '')
-    tags = f"<span class='at-tag p-{ev['pk']}'>{esc(ev['ptxt'])}</span><span class='at-tag y-{esc(ev['type'].lower())}'>{esc(ev['type'])}</span>"
+    tags = f"<span class='at-tag p-{ev['pk']}'>{esc(ev['ptxt'])}</span><span class='at-tag y-{esc(tkey)}'>{esc(ev['type'])}</span>"
     tags += ''.join(f"<span class='at-tag'>{esc(c.capitalize())}</span>" for c in ev['cats'])
     until = f"<span>– {ev['until']}</span>" if ev['until'] else ''
-    return (f"<article class='at-ev' data-k='{esc(' '.join(keys))}'><div class='at-ev-t'>{ev['when']}{until}</div>"
+    return (f"<article class='at-ev{' at-jem' if ev.get('jem') else ''}{cls}' data-k='{esc(' '.join(keys))}'><div class='at-ev-t'>{("<b class='at-ev-day'>" + ev['date'].strftime('%a, %b ') + str(ev['date'].day) + '</b>') if show_day else ''}{ev['when']}{until}</div>"
             f"<div class='at-ev-m'><h3 class='at-ev-h'>{title}</h3><div class='at-ev-meta'>{meta}</div>"
             + (f"<p class='at-ev-d'>{esc(ev['desc'])}</p>" if ev['desc'] else '') +
             f"<div class='at-tags'>{tags}</div></div></article>")
@@ -171,7 +184,7 @@ html.afro-unlocked [data-afro=card] .w-form{display:none}
 .at-fine a{color:#5B5F6E !important;text-decoration:underline !important}
 [data-afro=card] .w-form-done{background:#D9F9E9;color:#0A7A3E;border-radius:12px;padding:16px;font-weight:700;text-align:left}
 [data-afro=card] .w-form-fail{background:#FFF1F0;color:#B42318;border-radius:12px;padding:12px 14px;font-size:14px;font-weight:600;margin-top:10px}
-.at-bar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid #EBECF0;border-bottom:1px solid #EBECF0}
+.at-bar{position:relative;z-index:40;background:rgba(255,255,255,.96);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid #EBECF0;border-bottom:1px solid #EBECF0}
 .at-bar-in{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;flex-direction:column;gap:10px}
 .at-row{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px}
 .at-row::-webkit-scrollbar{display:none}
@@ -181,8 +194,11 @@ html.afro-unlocked [data-afro=card] .w-form{display:none}
 .at-f span,.at-chip span{font-family:'JetBrains Mono',monospace;font-size:11px;color:#8A8E9C;font-weight:600}
 .at-f.on{background:#0F1117;border-color:#0F1117;color:#fff !important}
 .at-f.on span{color:#48DFF4}
+.at-bar.at-fixed{position:fixed;top:0;left:0;right:0;box-shadow:0 8px 24px rgba(15,17,23,.08)}
 .at-lists{background:#fff;padding:8px 0 24px}
-.at-dayblock{max-width:1180px;margin:0 auto;padding:28px 24px 8px;scroll-margin-top:120px}
+.at-dayblock,.at-catblock{max-width:1180px;margin:0 auto;padding:36px 24px 8px;scroll-margin-top:130px}
+.at-catblock.cont{padding-top:0}
+.at-cat-p{font-size:14px;color:#5B5F6E;margin:8px 0 0}
 .at-day{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding-bottom:12px;border-bottom:2px solid #0F1117;margin-bottom:4px}
 .at-day-h{font-size:26px !important;font-weight:800 !important;letter-spacing:-.02em !important;color:#0F1117 !important;line-height:1.15 !important;margin:0 !important}
 .at-day-n{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#B81AA8;white-space:nowrap}
@@ -201,13 +217,26 @@ html.afro-unlocked [data-afro=card] .w-form{display:none}
 .at-tag.p-paid{background:#FFF4E5;color:#9A5B00}
 .at-tag.y-official{background:#FEF1FC;color:#B81AA8}
 .at-tag.y-partner{background:#E6FBFE;color:#04768A}
-[data-afro=lock]{position:relative;max-height:1150px;overflow:hidden}
-[data-afro=lock] .at-ev{filter:blur(5px);-webkit-user-select:none;user-select:none;pointer-events:none}
-html.afro-unlocked [data-afro=lock]{max-height:none;overflow:visible}
-html.afro-unlocked [data-afro=lock] .at-ev{filter:none;-webkit-user-select:auto;user-select:auto;pointer-events:auto}
-.at-over{position:absolute;left:0;right:0;bottom:0;height:560px;z-index:5;display:flex;align-items:flex-end;justify-content:center;padding:0 24px 56px;background:linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,.92) 38%,#fff 62%)}
+.at-tag.y-jem-social{background:#E322D0;color:#fff}
+.at-ev.at-jem{background:#FEF1FC;border:2px solid #E322D0;border-radius:16px;padding:20px 18px;margin:12px 0}
+.at-picks{max-width:1180px;margin:0 auto;padding:28px 24px 0}
+.at-picks-h{font-size:26px !important;font-weight:800 !important;letter-spacing:-.02em !important;color:#0F1117 !important;line-height:1.15 !important;margin:0 0 4px !important}
+.at-picks-p{font-size:14px;color:#5B5F6E;margin-bottom:4px}
+.at-ev-day{display:block;color:#E322D0;font-weight:700;margin-bottom:2px}
+.at-picks .acc{font-family:'Fraunces',serif !important;font-style:italic !important;font-weight:900 !important;color:#E322D0 !important}
+@media(max-width:760px){.at-picks{padding:22px 16px 0}.at-ev.at-jem{padding:16px 14px}}
+[data-afro=lock]{position:relative}
+.at-ev.lk{filter:blur(5px);-webkit-user-select:none;user-select:none;pointer-events:none}
+.at-ev.lkx{display:none}
+html.afro-unlocked .at-ev.lk{filter:none;-webkit-user-select:auto;user-select:auto;pointer-events:auto}
+html.afro-unlocked .at-ev.lkx{display:grid}
+.at-lkcta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 6px;padding:16px 18px;background:#0F1117;border-radius:14px;color:#fff;font-size:15px;font-weight:700}
+.at-lkcta span{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#48DFF4}
+.at-lkcta a{background:#E322D0 !important;color:#fff !important;padding:10px 16px;border-radius:10px;font-size:14px;font-weight:700;white-space:nowrap}
+html.afro-unlocked .at-lkcta{display:none}
+.at-over{display:flex;justify-content:center;padding:24px 24px 64px}
 html.afro-unlocked .at-over{display:none}
-.at-over-c{max-width:520px;text-align:center;background:#0F1117;color:#fff;border-radius:22px;padding:30px 28px;box-shadow:0 30px 70px -20px rgba(15,17,23,.45)}
+.at-over-c{width:100%;max-width:560px;text-align:center;background:#0F1117;color:#fff;border-radius:22px;padding:30px 28px;box-shadow:0 30px 70px -20px rgba(15,17,23,.45)}
 .at-over-n{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#48DFF4;margin-bottom:8px}
 .at-over-h{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:8px;color:#fff}
 .at-over-p{font-size:14px;color:rgba(255,255,255,.8);margin-bottom:18px}
@@ -250,7 +279,7 @@ html.afro-unlocked .at-over{display:none}
 .jh-foot a:hover{color:#E322D0 !important}
 @media(max-width:960px){.jh-nl,.jh-login,.jh-cta-nav{display:none !important}.jh-burger{display:flex !important}}
 @media(max-width:959px){.at-mcta{display:flex;justify-content:center;width:100%;margin:-4px 0 22px}}
-@media(max-width:760px){.jh-h1{font-size:34px !important}.jh-lede{font-size:16px}.jh-h2{font-size:26px !important}[data-afro=hero]{padding:32px 0 36px}.jh-sec{padding:48px 0}[data-afro=card]{padding:22px 18px}.at-card-h{font-size:24px}.at-ev{grid-template-columns:1fr;gap:6px;padding:18px 0}.at-ev-t span{display:inline;margin-left:6px}.at-day-h{font-size:21px !important}.at-dayblock{padding:22px 16px 4px}.at-bar-in{padding:10px 16px}.at-row-l{display:none}.at-stat{min-width:0;flex:1 1 40%}.jh-ps-c{padding:24px 20px}.at-over{padding:0 16px 40px}.at-over-c{padding:24px 20px}.jh-wrap,[data-afro=wrap]{padding:0 16px}}
+@media(max-width:760px){.jh-h1{font-size:34px !important}.jh-lede{font-size:16px}.jh-h2{font-size:26px !important}[data-afro=hero]{padding:32px 0 36px}.jh-sec{padding:48px 0}[data-afro=card]{padding:22px 18px}.at-card-h{font-size:24px}.at-ev{grid-template-columns:1fr;gap:6px;padding:18px 0}.at-ev-t span{display:inline;margin-left:6px}.at-day-h{font-size:21px !important}.at-dayblock,.at-catblock{padding:28px 16px 4px}.at-catblock.cont{padding-top:0}.at-lkcta{padding:14px}.at-bar-in{padding:10px 16px}.at-row-l{display:none}.at-stat{min-width:0;flex:1 1 40%}.jh-ps-c{padding:24px 20px}.at-over{padding:0 16px 40px}.at-over-c{padding:24px 20px}.jh-wrap,[data-afro=wrap]{padding:0 16px}}
 """
 
 def stat(n, label): return f"<div class='at-stat'><b>{n}</b><span>{label}</span></div>"
@@ -258,41 +287,87 @@ def stat(n, label): return f"<div class='at-stat'><b>{n}</b><span>{label}</span>
 pieces = {}
 pieces['A_head'] = FONTS + '<style>' + re.sub(r'\n', '', CSS) + "</style>" + f"""<div class='jh'><div class='jh-ann'>AfroTech week is {first:%b} {first.day}–{last.day}. <strong>{N} events</strong>, one list.<a href='#unlock'>Unlock it free →</a></div><nav class='jh-nav'><div class='jh-nav-in'><a href='https://www.jem.social/' class='jh-logo'>jem<span class='sq' aria-hidden='true'></span>social</a><div class='jh-nl'><a href='https://www.jem.social/for-brands'>For brands</a><a href='https://www.jem.social/earn-money-as-a-creator'>For creators</a><a href='https://www.jem.social/pricing'>Pricing</a><a href='https://www.jem.social/resources'>Resources</a></div><div class='jh-na'><a href='https://app.jem.social/login' class='jh-login'>Log in</a><a href='{SIGNUP}' class='jh-cta-nav'>Join Jem free →</a><button class='jh-burger' aria-label='Menu' onclick='jhNav()'><span></span><span></span><span></span></button></div><div class='jh-mm' id='jhMm'><a href='https://www.jem.social/for-brands'>For brands</a><a href='https://www.jem.social/earn-money-as-a-creator'>For creators</a><a href='https://www.jem.social/pricing'>Pricing</a><a href='https://www.jem.social/resources'>Resources</a><a href='https://app.jem.social/login'>Log in</a><a href='{SIGNUP}'>Join Jem free →</a></div></div></nav></div>"""
 
-pieces['H_copy'] = f"""<div><div class='jh-pill'><span class='dot'></span>AfroTech 2026 · Houston · {first:%b} {first.day}–{last.day}</div><h1 class='jh-h1'>Every AfroTech 2026 event, <span class='acc'>in one list.</span></h1><p class='jh-lede'><strong>{N} parties, mixers, dinners, runs and official meetups</strong> happening around AfroTech week in Houston. Filter by day, price and vibe, and find your rooms before they fill up.</p><a href='#unlock' class='jh-bp at-mcta'>Unlock the full list ↓</a><div class='at-stats'>{stat(N, 'Events')}{stat(N_FREE, 'Listed free')}{stat(TYPES['Official'], 'Official')}{stat(len(by_day), 'Days')}</div><p class='at-credit'>Organized by Jem Social from public event listings. Updated {SNAPSHOT}.</p></div>"""
+pieces['H_copy'] = f"""<div><div class='jh-pill'><span class='dot'></span>AfroTech 2026 · Houston · {first:%b} {first.day}–{last.day}</div><h1 class='jh-h1'>Every AfroTech 2026 event, <span class='acc'>in one list.</span></h1><p class='jh-lede'><strong>{N} parties, mixers, dinners, runs and official meetups</strong> happening around AfroTech week in Houston. Browse by type, filter by day and price, and find your rooms before they fill up.</p><a href='#unlock' class='jh-bp at-mcta'>Unlock the full list ↓</a><div class='at-stats'>{stat(N, 'Events')}{stat(N_FREE, 'Listed free')}{stat(TYPES['Official'], 'Official')}{stat(len(by_day), 'Days')}</div><p class='at-credit'>Organized by Jem Social from public event listings. Updated {SNAPSHOT}.</p></div>"""
 
-pieces['G_cardhead'] = f"""<div class='at-card-eye'>Free · {N} events · {first:%b} {first.day}–{last.day}</div><div class='at-card-h'>Get the <span class='acc'>full list.</span></div><p class='at-card-p'>Enter your email to unlock every event, {first:%A} through {last:%A}.</p><ul class='at-card-ul'><li>Ticket and RSVP links for every event</li><li>Filter by free, parties, networking and more</li><li>Official, partner and community events</li></ul><div class='at-ok'>✓ You're in. The full list is unlocked. <a href='#nov-3'>Jump to Tuesday ↓</a></div>"""
+pieces['G_cardhead'] = f"""<div class='at-card-eye'>Free · {N} events · {first:%b} {first.day}–{last.day}</div><div class='at-card-h'>Get the <span class='acc'>full list.</span></div><p class='at-card-p'>Enter your email to unlock every event, {first:%A} through {last:%A}.</p><ul class='at-card-ul'><li>Ticket and RSVP links for every event</li><li>Browse parties, networking, career and founder events</li><li>Official, partner and community events</li></ul><div class='at-ok'>✓ You're in. The full list is unlocked. <a href='#jem-picks'>See every event ↓</a></div>"""
 
-pieces['F_fields'] = """<label class='at-lbl' for='at-role'>I'm going as a…</label><select class='at-select' id='at-role' name='Role' required><option value=''>Choose one</option><option>Creator or influencer</option><option>Brand or marketer</option><option>Agency</option><option>Founder or builder</option><option>Just attending</option></select><input type='hidden' name='Source' value='afrotech-2026-events'>"""
+pieces['F_fields'] = """<label class='at-lbl' for='at-role'>I'm going as a…</label><select class='at-select' id='at-role' name='Role' required><option value=''>Choose one</option><option>Creator or influencer</option><option>Brand or marketer</option><option>Agency</option><option>Founder or builder</option><option>Just attending</option></select><input type='hidden' name='Source' value='afrotech-2026-events'><input type='hidden' name='utm_source' value=''><input type='hidden' name='utm_medium' value=''><input type='hidden' name='utm_campaign' value=''><input type='hidden' name='utm_content' value=''><input type='hidden' name='Referrer' value=''>"""
 
 pieces['F_fine'] = """<p class='at-fine'>By unlocking, you agree to get AfroTech updates and Jem Social emails. Unsubscribe anytime. <a href='https://www.jem.social/privacy-policy'>Privacy policy</a></p>"""
 
-chips_day = ''.join(f"<a class='at-chip' href='#nov-{d.day}'>{d:%a} {d.day}<span>{len(v)}</span></a>" for d, v in by_day.items())
+SECTIONS = [  # (key, heading, plural noun for the lock bar); each event is listed once, under its first matching key
+    ('party', 'Parties & nightlife', 'parties'),
+    ('networking', 'Networking & mixers', 'networking events'),
+    ('career', 'Career & recruiting', 'career events'),
+    ('founder', 'Founders & builders', 'founder events'),
+    ('workshop', 'Workshops & learning', 'workshops'),
+    ('social', 'Culture & social', 'culture and social events'),
+]
+PRIORITY = ['founder', 'career', 'workshop', 'party', 'networking', 'social']
+OPEN_PER_SECTION, PEEK_PER_SECTION = 2, 2
+by_sec = collections.OrderedDict((k, []) for k, _, _ in SECTIONS)
+for ev in events:
+    by_sec[next((c for c in PRIORITY if c in ev['cats']), 'social')].append(ev)
+SEC_N = {k: len(v) for k, v in by_sec.items()}
+N_PREVIEW = sum(min(len(v), OPEN_PER_SECTION) for v in by_sec.values())
+N_LOCKED = N - N_PREVIEW
+
+chips_cat = f"<button type='button' class='at-f at-c on' data-c='all' aria-pressed='true'>All types<span>{N}</span></button>"
+chips_cat += ''.join(f"<button type='button' class='at-f at-c' data-c='{k}' aria-pressed='false'>{h.split(' &')[0]}<span>{SEC_N[k]}</span></button>" for k, h, _ in SECTIONS if SEC_N[k])
 chips_f = f"<button type='button' class='at-f on' data-f='all' aria-pressed='true'>All<span>{N}</span></button>"
 chips_f += f"<button type='button' class='at-f' data-f='free' aria-pressed='false'>Free<span>{N_FREE}</span></button>"
+chips_f += f"<button type='button' class='at-f' data-f='jem-social' aria-pressed='false'>Jem Social<span>{TYPES['Jem Social']}</span></button>"
 chips_f += f"<button type='button' class='at-f' data-f='official' aria-pressed='false'>Official<span>{TYPES['Official']}</span></button>"
-chips_f += ''.join(f"<button type='button' class='at-f' data-f='{c}' aria-pressed='false'>{c.capitalize()}<span>{CAT_N[c]}</span></button>" for c in CATS if CAT_N[c])
-pieces['P_preview'] = (f"<div class='jh'><div class='at-bar'><div class='at-bar-in'><div class='at-row'><span class='at-row-l'>Day</span>{chips_day}</div>"
-                       f"<div class='at-row'><span class='at-row-l'>Show</span>{chips_f}</div></div></div><div class='at-lists'>"
-                       + ''.join(day_block(d, v) for d, v in by_day.items() if d.day in PREVIEW_DAYS)
-                       + "<div class='at-empty' id='at-empty'>No events match that filter on these days.</div></div></div>")
+chips_f += ''.join(f"<button type='button' class='at-f' data-f='d{d.day}' aria-pressed='false'>{d:%a} {d.day}<span>{len(v)}</span></button>" for d, v in by_day.items())
+picks = [e for e in events if e.get('jem')]
+picks_html = ("<section class='at-picks' id='jem-picks'><h2 class='at-picks-h'>Jem Social <span class='acc'>picks</span></h2>"
+              "<p class='at-picks-p'>The two AfroTech week events we're part of. Come say hi.</p><div class='at-list'>" + ''.join(card(e, True) for e in picks) + "</div></section>")
+bar = (f"<div class='at-bar'><div class='at-bar-in'><div class='at-row'><span class='at-row-l'>Browse</span>{chips_cat}</div>"
+       f"<div class='at-row'><span class='at-row-l'>Show</span>{chips_f}</div></div></div>")
 
-locked_days = [(d, v) for d, v in by_day.items() if d.day not in PREVIEW_DAYS]
-groups, cur, size = [], [], 0
-for d, v in locked_days:                 # keep each embed well under Webflow's embed size limit
-    blk = day_block(d, v)
-    if cur and size + len(blk) > 30000: groups.append(cur); cur, size = [], 0
-    cur.append(blk); size += len(blk)
-if cur: groups.append(cur)
-for i, g in enumerate(groups, 1): pieces[f'L{i}'] = "<div class='jh'><div class='at-lists'>" + ''.join(g) + "</div></div>"
+def sec_open(k, h, head):
+    if not head: return f"<section class='at-catblock cont' data-cat='{k}'><div class='at-list'>"
+    n = SEC_N[k]
+    return (f"<section class='at-catblock' id='cat-{k}' data-cat='{k}' data-head='1'><div class='at-day'><h2 class='at-day-h'>{esc(h)}</h2>"
+            f"<span class='at-day-n'>{n} event{'s' if n != 1 else ''}</span></div><div class='at-list'>")
 
-lfirst, llast = locked_days[0][0], locked_days[-1][0]
-pieces['O_overlay'] = f"""<div class='jh'><div class='at-over'><div class='at-over-c'><div class='at-over-n'>{N_LOCKED} more events · {lfirst:%a}–{llast:%a}</div><div class='at-over-h'>The rest of AfroTech week is one email away.</div><p class='at-over-p'>Unlock {lfirst:%A} through {llast:%A}, including the busiest nights of the week.</p><a href='#unlock' class='jh-bp'>Unlock the full list ↑</a></div></div></div>"""
+# Each section: first OPEN_PER_SECTION cards open, next PEEK_PER_SECTION blurred, the rest hidden until unlock.
+units = []   # (section key, heading, html, starts_section)
+for k, h, noun in SECTIONS:
+    evs_k = by_sec[k]
+    for i, ev in enumerate(evs_k):
+        cls = '' if i < OPEN_PER_SECTION else (' lk' if i < OPEN_PER_SECTION + PEEK_PER_SECTION else ' lk lkx')
+        html_ = card(ev, True, cls)
+        locked = len(evs_k) - OPEN_PER_SECTION
+        if locked > 0 and i == min(len(evs_k), OPEN_PER_SECTION + PEEK_PER_SECTION) - 1:
+            html_ += f"<div class='at-lkcta'><div><span>Locked</span><br>{locked} more {noun}</div><a href='#unlock'>Unlock free ↑</a></div>"
+        units.append((k, h, html_, i == 0))
+
+LIMIT = 30000                              # keep each embed well under Webflow's embed size limit
+prefix = "<div class='jh'>" + bar + "<div class='at-lists'>" + picks_html
+slots, cur, cur_k = [], prefix, None
+for k, h, html_, first_in_sec in units:
+    if len(cur) + len(html_) + 40 > LIMIT and cur_k is not None:
+        slots.append(cur + "</div></section></div></div>"); cur, cur_k = "<div class='jh'><div class='at-lists'>", None
+    if cur_k != k:
+        if cur_k is not None: cur += "</div></section>"
+        cur += sec_open(k, h, first_in_sec); cur_k = k
+    cur += html_
+slots.append(cur + "</div></section></div></div>")
+assert len(slots) <= 5, len(slots)
+EMPTY_SLOT = "<div class='jh'></div>"
+pieces['P_preview'] = slots[0]
+for i in range(1, 5): pieces[f'L{i}'] = slots[i] if i < len(slots) else EMPTY_SLOT
+pieces['O_overlay'] = (f"<div class='jh'><div class='at-empty' id='at-empty'>No events match that filter.</div><div class='at-over'><div class='at-over-c'>"
+                       f"<div class='at-over-n'>{N_LOCKED} more events · {first:%a}–{last:%a}</div><div class='at-over-h'>See every party, mixer and meetup.</div>"
+                       f"<p class='at-over-p'>Unlock all {N} events with RSVP links, sorted by type and filterable by day.</p><a href='#unlock' class='jh-bp'>Unlock the full list ↑</a></div></div></div>")
 
 (b1d, b1), (b2d, b2) = busiest
 faq = [
     ('When are the AfroTech 2026 events?', f"The events on this list run from <strong>{dayname(first)} through {dayname(last)}, 2026</strong>. The busiest days are {b1d:%A} ({len(b1)} events) and {b2d:%A} ({len(b2)} events)."),
     ('Where do the events take place?', "Most are in Houston. Some venues are only shared after you RSVP, so check each event's page for the address."),
-    ('Are these official AfroTech events?', f"Some are. <strong>{TYPES['Official']} are marked official, {TYPES['Partner']} are partner events and {TYPES['Community']} are hosted by the community.</strong> Check each event's own page for entry requirements."),
+    ('Are these official AfroTech events?', f"Some are. <strong>{TYPES['Official']} are marked official, {TYPES['Partner']} are partner events, {TYPES['Community']} are hosted by the community and {TYPES['Jem Social']} are Jem Social events.</strong> Check each event's own page for entry requirements."),
+    ('What kinds of events are on the list?', f"{SEC_N['party']} parties, {SEC_N['networking']} networking events and mixers, {SEC_N['career']} career and recruiting events, {SEC_N['founder']} founder events, {SEC_N['workshop']} workshops and {SEC_N['social']} culture and social events. Each event is listed once, under the type that fits it best."),
     ('How many events are free?', f"{N_FREE} of the {N} events are listed as free. The rest are paid or haven't posted a price yet."),
     ('Who put this list together?', "Jem Social organized this list from public event pages and community event lists. Hosting an AfroTech event that's missing? Email <a href='mailto:support@jem.social'>support@jem.social</a>."),
     ('Is this list kept up to date?', f"This page reflects the list as of {SNAPSHOT}. Times, prices and venues change, so confirm on the event's link before you go."),
@@ -305,27 +380,46 @@ function jhNav(){document.querySelector('.jh-burger').classList.toggle('on');doc
 var K='jem_afrotech26',H=document.documentElement;
 var em=document.querySelector('[data-afro=card] input[type=email]');if(em&&!em.placeholder)em.placeholder='you@email.com';
 function unlock(){H.classList.add('afro-unlocked');try{localStorage.setItem(K,'1')}catch(e){}}
+function T(ga,pl,p){p=p||{};try{if(window.gtag)gtag('event',ga,p)}catch(e){}try{if(window.plausible)plausible(pl,{props:p})}catch(e){}}
+var C=function(v){return String(v||'').toLowerCase().replace(/[^a-z0-9_.-]/g,'').slice(0,60)},U={};
+try{var Q=new URLSearchParams(location.search);['utm_source','utm_medium','utm_campaign','utm_content'].forEach(function(k){if(C(Q.get(k)))U[k]=C(Q.get(k))});
+if(document.referrer&&document.referrer.indexOf(location.host)<0)U.Referrer=C(new URL(document.referrer).hostname);
+if(Object.keys(U).length)sessionStorage.setItem('jem_at_src',JSON.stringify(U));else U=JSON.parse(sessionStorage.getItem('jem_at_src')||'{}')}catch(e){}
+Object.keys(U).forEach(function(k){var i=document.querySelector('[data-afro=card] input[name='+k+']');if(i)i.value=U[k]});
+var led=false;function lead(){if(led)return;led=true;var r=document.querySelector('[data-afro=card] select[name=Role]'),p={form:'afrotech_2026_list',role:r?r.value:'',source:U.utm_source||U.Referrer||'direct',post:U.utm_content||''};
+T('generate_lead','AfroTech Signup',p);try{if(window.fbq)fbq('track','Lead',{content_name:'AfroTech 2026 List'})}catch(e){}try{if(window.ttq)ttq.track('SubmitForm',{content_name:'AfroTech 2026 List'})}catch(e){}}
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(!a)return;
+if(a.closest('.at-ev-h')){var ev=a.closest('.at-ev');T('afrotech_event_click','AfroTech Event Click',{event_name:a.textContent.replace('↗','').trim().slice(0,90),jem_event:ev&&ev.classList.contains('at-jem')?'yes':'no'})}
+else if(a.href.indexOf('app.jem.social/signup')>-1){T('afrotech_signup_click','AfroTech Jem Signup Click',{cta:(a.href.match(/source=([^&]+)/)||[])[1]||''})}});
 try{if(localStorage.getItem(K)==='1')H.classList.add('afro-unlocked')}catch(e){}
+if(/[?&]unlock=1(&|$)/.test(location.search))unlock();
 var done=document.querySelector('[data-afro=card] .w-form-done');
-if(done&&window.MutationObserver){new MutationObserver(function(){if(done.style.display&&done.style.display!=='none')unlock()}).observe(done,{attributes:true,attributeFilter:['style']})}
-var fs=[].slice.call(document.querySelectorAll('.at-f')),evs=[].slice.call(document.querySelectorAll('.at-ev')),days=[].slice.call(document.querySelectorAll('.at-dayblock')),empty=document.getElementById('at-empty');
-function apply(f){
+if(done&&window.MutationObserver){new MutationObserver(function(){if(done.style.display&&done.style.display!=='none'){unlock();lead()}}).observe(done,{attributes:true,attributeFilter:['style']})}
+var fs=[].slice.call(document.querySelectorAll('.at-f:not(.at-c)')),cs=[].slice.call(document.querySelectorAll('.at-c')),F='all',CT='all',evs=[].slice.call(document.querySelectorAll('.at-ev')),secs=[].slice.call(document.querySelectorAll('.at-catblock')),empty=document.getElementById('at-empty');
+function apply(){var f=F;
  evs.forEach(function(e){e.style.display=(f==='all'||(' '+e.getAttribute('data-k')+' ').indexOf(' '+f+' ')>-1)?'':'none'});
- var openShown=0;
- days.forEach(function(d){var n=0;[].forEach.call(d.querySelectorAll('.at-ev'),function(e){if(e.style.display!=='none')n++});d.style.display=n?'':'none';var c=d.querySelector('.at-day-n');if(c)c.textContent=n+(n===1?' event':' events');if(!d.closest('[data-afro=lock]'))openShown+=n});
- if(empty)empty.style.display=openShown?'none':'block';
+ var tot={},own=[],all=0;
+ secs.forEach(function(s,i){var n=0;[].forEach.call(s.querySelectorAll('.at-ev'),function(e){if(e.style.display!=='none')n++});own[i]=n;var c=s.getAttribute('data-cat');tot[c]=(tot[c]||0)+n;all+=n});
+ secs.forEach(function(s,i){var c=s.getAttribute('data-cat'),hd=s.getAttribute('data-head'),n=tot[c];s.style.display=((hd?n:own[i])&&(CT==='all'||CT===c))?'':'none';var t=s.querySelector('.at-day-n');if(t)t.textContent=n+(n===1?' event':' events')});
+ if(CT!=='all')all=tot[CT]||0;
+ if(empty)empty.style.display=all?'none':'block';
+ var pk=document.getElementById('jem-picks');if(pk)pk.style.display=CT==='all'&&pk.querySelector('.at-ev:not([style*=none])')?'':'none';
 }
-fs.forEach(function(b){b.addEventListener('click',function(){fs.forEach(function(x){x.classList.remove('on');x.setAttribute('aria-pressed','false')});b.classList.add('on');b.setAttribute('aria-pressed','true');apply(b.getAttribute('data-f'))})});
+function pick(set,b){set.forEach(function(x){x.classList.remove('on');x.setAttribute('aria-pressed','false')});b.classList.add('on');b.setAttribute('aria-pressed','true')}
+fs.forEach(function(b){b.addEventListener('click',function(){pick(fs,b);F=b.getAttribute('data-f');apply()})});
+cs.forEach(function(b){b.addEventListener('click',function(){pick(cs,b);CT=b.getAttribute('data-c');apply();var l=document.querySelector('.at-bar');if(l&&l.classList.contains('at-fixed')){var t=document.querySelector('.at-lists');if(t)window.scrollTo(0,t.getBoundingClientRect().top+pageYOffset-l.offsetHeight)}T('afrotech_category','AfroTech Category',{category:CT})})});
+var bar=document.querySelector('.at-bar'),end=document.getElementById('at-end');
+if(bar){var ph=document.createElement('div');bar.parentNode.insertBefore(ph,bar);var fx=function(){var h=bar.offsetHeight,on=ph.getBoundingClientRect().top<0&&(!end||end.getBoundingClientRect().top>h);bar.classList.toggle('at-fixed',on);ph.style.height=on?h+'px':'0'};addEventListener('scroll',fx,{passive:true});addEventListener('resize',fx);fx()}
 })();
 </script>"""
 
-pieces['C_tail'] = f"""<div class='jh'><section class='jh-sec alt'><div class='jh-wrap'><div class='jh-eye'>Heading to AfroTech?</div><h2 class='jh-h2'>Make the trip <span class='acc'>pay off.</span></h2><p class='jh-lede2'>AfroTech week is full of brands, founders and creators in the same rooms. Jem Social helps you turn those intros into partnerships.</p><div class='jh-ps'><div class='jh-ps-c jh-ps-p'><div class='jh-ps-lbl'>// For creators</div><div class='jh-ps-h'>Met a brand at a mixer? Pitch them after.</div><p class='jh-ps-body'>Jem's brand pitch tool keeps every pitch you send to brands in one place, for $20/mo.</p><a href='https://www.jem.social/brand-pitch-tool' class='jh-ps-cta'>See the brand pitch tool →</a></div><div class='jh-ps-c jh-ps-s'><div class='jh-ps-lbl'>// For brands</div><div class='jh-ps-h'>Find creators for your next activation.</div><p class='jh-ps-body'>Search 30M+ UGC creators and influencers on Jem Social, then book and pay them through Jem.</p><a href='https://www.jem.social/influencer-finder' class='jh-ps-cta'>Try the influencer finder →</a></div></div></div></section><section class='jh-sec'><div class='jh-wrap'><div class='jh-eye'>FAQ</div><h2 class='jh-h2'>AfroTech 2026 events, <span class='acc'>answered.</span></h2><div class='jh-faq-list'>{faq_html}</div></div></section><footer class='jh-foot'>© 2026 Jem Social · <a href='https://www.jem.social/'>Home</a> · <a href='https://www.jem.social/pricing'>Pricing</a> · <a href='mailto:support@jem.social'>Contact</a></footer></div>""" + SCRIPT
+pieces['C_tail'] = f"""<div class='jh'><section class='jh-sec alt' id='at-end'><div class='jh-wrap'><div class='jh-eye'>Heading to AfroTech?</div><h2 class='jh-h2'>Make the trip <span class='acc'>pay off.</span></h2><p class='jh-lede2'>AfroTech week is full of brands, founders and creators in the same rooms. Jem Social helps you turn those intros into partnerships.</p><div class='jh-ps'><div class='jh-ps-c jh-ps-p'><div class='jh-ps-lbl'>// For creators</div><div class='jh-ps-h'>Met a brand at a mixer? Pitch them after.</div><p class='jh-ps-body'>Jem's brand pitch tool keeps every pitch you send to brands in one place, for $20/mo.</p><a href='https://app.jem.social/signup?source=afrotech_2026_creator' class='jh-ps-cta'>Try the brand pitch tool →</a></div><div class='jh-ps-c jh-ps-s'><div class='jh-ps-lbl'>// For brands</div><div class='jh-ps-h'>Find creators for your next activation.</div><p class='jh-ps-body'>Search 30M+ UGC creators and influencers on Jem Social, then book and pay them through Jem.</p><a href='https://app.jem.social/signup?plan=price_1RH6oxB5nBZIUygBaJwlEgXP&source=afrotech_2026_brand' class='jh-ps-cta'>Try the influencer finder →</a></div></div></div></section><section class='jh-sec'><div class='jh-wrap'><div class='jh-eye'>FAQ</div><h2 class='jh-h2'>AfroTech 2026 events, <span class='acc'>answered.</span></h2><div class='jh-faq-list'>{faq_html}</div></div></section><footer class='jh-foot'>© 2026 Jem Social · <a href='https://www.jem.social/'>Home</a> · <a href='https://www.jem.social/pricing'>Pricing</a> · <a href='mailto:support@jem.social'>Contact</a></footer></div>""" + SCRIPT
 
 for k, v in pieces.items():
     open(f'{OUT}/{k}.html', 'w').write(v)
     print(f'{k:10s} {len(v):6d} chars')
 json.dump(dict(N=N, N_FREE=N_FREE, TYPES=TYPES, N_PREVIEW=N_PREVIEW, N_LOCKED=N_LOCKED, days={str(k): len(v) for k, v in by_day.items()},
-               cats=CAT_N, groups=len(groups)), open(f'{OUT}/stats.json', 'w'), indent=1, default=str)
+               cats=CAT_N, sections=SEC_N, embeds=len(slots)), open(f'{OUT}/stats.json', 'w'), indent=1, default=str)
 print(open(f'{OUT}/stats.json').read())
 
 import csv
