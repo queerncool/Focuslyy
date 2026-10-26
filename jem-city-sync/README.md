@@ -31,3 +31,11 @@
   `python3 jem_sync.py approve SLUG...` approves pages, publishes them, and prints the 301s to add in
   Webflow (from the page's Old URLs field).
 - **Too few creators:** pages with fewer than 5 are saved as drafts marked `skip:` and retried after 60 days.
+
+## Updating the scheduled task
+
+The scheduled task ("Jem city pages daily build") doesn't run this repo copy. It downloads the script
+from a Webflow file and checks its MD5. After changing `jem_sync.py`:
+
+1. Upload the new version as a Webflow asset.
+2. Put the new S3 URL and MD5 in the task's setup step.
