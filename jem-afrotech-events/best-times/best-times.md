@@ -33,10 +33,21 @@ Each post's views are compared with the median of the account's other posts with
 | post | Instagram | Threads |
 | --- | --- | --- |
 | creators | Mon Oct 26, 7:00 pm | Mon Oct 26, 1:00 pm |
-| brands | Thu Oct 29, 7:00 pm | Thu Oct 29, 1:00 pm |
+| brands | Thu Oct 29, 7:00 pm | **Wed Oct 28, 12:30 pm** (Wednesday is the best Threads day, Thursday the weakest) |
 | founders | Mon Nov 2, 7:00 pm (CST) | Mon Nov 2, 1:00 pm (CST) |
 
-Threads goes at 1 pm, not noon, because a UGC opportunity post already sits at 12:00 on Oct 26 and Nov 2.
+Threads goes at 1 pm, not noon, on Oct 26 and Nov 2 because a UGC opportunity post already sits at 12:00 those days. On Wed Oct 28 noon is free, so brands goes at 12:30, 75 minutes after the 11:15 post.
+
+## Other Threads posts moved
+
+The two remaining 7 am Threads posts (the 0.56x slot) moved into the midday window:
+
+| post | was | now |
+| --- | --- | --- |
+| "Where top apps found their creators" | Mon Oct 26, 7:00 am | Mon Oct 26, 2:00 pm |
+| "Creator mistakes even big apps made" | Tue Oct 27, 7:00 am | Tue Oct 27, 12:30 pm |
+
+The 8 am to 11:15 am slots stay as they are. 8 am tests strong (3.15x, though only 3 posts), and 9 am and 11 am are close to typical (0.91x and 0.85x). That's not enough evidence to move 30+ posts.
 
 ## Re-running
 

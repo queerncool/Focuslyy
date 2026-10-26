@@ -179,7 +179,7 @@ https://www.jem.social/afrotech-2026-events?utm_source=threads&utm_medium=social
 pop your email in to unlock the full list and we'll send a copy to your inbox too 📩
 ```
 
-### brands · threads thu oct 29, 1:00 pm ct
+### brands · threads wed oct 28, 12:30 pm ct
 
 **caption**
 
