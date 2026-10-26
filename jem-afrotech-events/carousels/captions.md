@@ -1,6 +1,7 @@
 # AfroTech carousels: captions and DM replies
 
 Each carousel is 9 slides, 1080×1350 (Instagram 4:5). Upload the PNGs in order (01 → 09).
+The pink cover stands out in both light and dark mode; the inside slides are white for readability.
 Every DM link carries its own `utm_content`, so signups from each post show up separately in Brevo (AT26_POST) and GA4.
 
 ---
@@ -21,6 +22,8 @@ AfroTech week starts Sunday in Houston, and there are 101 events on the list. If
 Plus the two we're part of: The Green Room (Sun) and Sapphic Hour (Thu).
 
 Want all 101, sorted by parties, networking, career and founder events? Comment LINK and we'll DM it to you.
+
+Send this to the creator you're pulling up with 📲
 
 #AfroTech #AfroTech2026 #AfroTechWeek #HoustonEvents #ContentCreator #UGCCreator #CreatorEconomy #BlackCreators #Houston
 
@@ -48,6 +51,8 @@ And come meet creators at The Green Room on Sunday. We're a sponsor.
 
 Comment LINK for all 101 AfroTech events, sorted by type.
 
+Send this to your marketing team 📲
+
 #AfroTech #AfroTech2026 #BrandActivation #InfluencerMarketing #CreatorMarketing #ExperientialMarketing #HoustonEvents #MarketingTeam
 
 **DM reply**
@@ -73,6 +78,8 @@ AfroTech week is here. Founders, these are the 6 rooms we'd clear the calendar f
 Find us Thursday at Sapphic Hour.
 
 Comment LINK for all 101 AfroTech events, including 23 parties and 42 networking events.
+
+Send this to a founder who's in Houston this week 📲
 
 #AfroTech #AfroTech2026 #Founders #BlackFounders #StartupLife #HoustonStartups #HoustonEvents #BuildInPublic
 
