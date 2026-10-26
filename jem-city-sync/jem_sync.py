@@ -166,8 +166,19 @@ def candidates(res, exclude):
                      'f': int(f), 'er': float(er), 'plat': plat})
     return sorted(rows, key=lambda r: -r['er'])
 
+def pil():
+    # some containers ship a broken Pillow; fall back to a private install
+    try:
+        from PIL import Image; return Image
+    except Exception:
+        for k in [k for k in sys.modules if k == 'PIL' or k.startswith('PIL.')]: del sys.modules[k]
+        lib = os.path.expanduser('~/pylib')
+        subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', '--target', lib, 'pillow'], capture_output=True)
+        sys.path.insert(0, lib)
+        from PIL import Image; return Image
+
 def fetch_photo(r):
-    from PIL import Image
+    Image = pil()
     path = f'{W}/photos/creator-{r["hs"]}.jpg'
     if os.path.exists(path): return path
     os.makedirs(f'{W}/photos', exist_ok=True)
@@ -359,8 +370,21 @@ def cmd_build():
         else: report['refreshed'].append(p['f']['name'])
         if p['f'].get('approved'): report['approved_changed'].append(p['id'])
         ups.append(item)
-    for i in range(0, len(ups), 2):
-        json.dump(ups[i:i + 2], open(f'{out}/u{i // 2:02d}.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+    # one part of one page per file, under 20,000 characters, so `cat` always shows it whole
+    files, LIM = [], 20000
+    size = lambda fd, iid: len(json.dumps([{'id': iid, 'fieldData': fd}], ensure_ascii=False, separators=(',', ':')))
+    for item in ups:
+        fd, parts, cur = item['fieldData'], [], {}
+        for k in sorted(fd, key=lambda k: -len(json.dumps(fd[k], ensure_ascii=False))):
+            if cur and size(dict(cur, **{k: fd[k]}), item['id']) > LIM: parts.append(cur); cur = {}
+            cur[k] = fd[k]
+        parts.append(cur)
+        for j, part in enumerate(parts):
+            it = {'id': item['id'], 'fieldData': part}
+            if j == len(parts) - 1 and 'isDraft' in item: it['isDraft'] = item['isDraft']
+            files.append([it])
+    for i, f in enumerate(files):
+        json.dump(f, open(f'{out}/u{i:03d}.json', 'w'), ensure_ascii=False, separators=(',', ':'))
     save('report.json', report)
     print(json.dumps({k: len(v) for k, v in report.items()}), '\nupdate batches:', ' '.join(sorted(glob.glob(f'{out}/*.json'))))
     if report['approved_changed']: print('approved items to publish live:', json.dumps(report['approved_changed']))
