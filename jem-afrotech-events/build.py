@@ -53,11 +53,12 @@ for d in raw:
     addr = str(d['Address'] or '').strip()
     if addr.upper() in ('TBA', 'TBD'): addr = ''
     desc = re.sub(r'\s+', ' ', str(d['Description'] or '')).strip()
+    full = desc
     if len(desc) > 210: desc = desc[:210].rsplit(' ', 1)[0].rstrip(',.;:-–— ') + '…'
     events.append(dict(date=date, s=s if s is not None else 9999, when=when, until=until, name=name,
                        host=str(d['Host'] or '').strip(), link=str(d['Details / Tickets'] or '').strip(),
                        ptxt=ptxt, pk=pk, type=str(d['Type'] or 'Community').strip(), cats=cats,
-                       venue=venue, addr=addr, desc=desc))
+                       venue=venue, addr=addr, desc=desc, full=full))
 
 events.sort(key=lambda x: (x['date'], x['s'], x['name'].lower()))
 by_day = collections.OrderedDict()
@@ -257,7 +258,7 @@ def stat(n, label): return f"<div class='at-stat'><b>{n}</b><span>{label}</span>
 pieces = {}
 pieces['A_head'] = FONTS + '<style>' + re.sub(r'\n', '', CSS) + "</style>" + f"""<div class='jh'><div class='jh-ann'>AfroTech week is {first:%b} {first.day}–{last.day}. <strong>{N} events</strong>, one list.<a href='#unlock'>Unlock it free →</a></div><nav class='jh-nav'><div class='jh-nav-in'><a href='https://www.jem.social/' class='jh-logo'>jem<span class='sq' aria-hidden='true'></span>social</a><div class='jh-nl'><a href='https://www.jem.social/for-brands'>For brands</a><a href='https://www.jem.social/earn-money-as-a-creator'>For creators</a><a href='https://www.jem.social/pricing'>Pricing</a><a href='https://www.jem.social/resources'>Resources</a></div><div class='jh-na'><a href='https://app.jem.social/login' class='jh-login'>Log in</a><a href='{SIGNUP}' class='jh-cta-nav'>Join Jem free →</a><button class='jh-burger' aria-label='Menu' onclick='jhNav()'><span></span><span></span><span></span></button></div><div class='jh-mm' id='jhMm'><a href='https://www.jem.social/for-brands'>For brands</a><a href='https://www.jem.social/earn-money-as-a-creator'>For creators</a><a href='https://www.jem.social/pricing'>Pricing</a><a href='https://www.jem.social/resources'>Resources</a><a href='https://app.jem.social/login'>Log in</a><a href='{SIGNUP}'>Join Jem free →</a></div></div></nav></div>"""
 
-pieces['H_copy'] = f"""<div><div class='jh-pill'><span class='dot'></span>AfroTech 2026 · Houston · {first:%b} {first.day}–{last.day}</div><h1 class='jh-h1'>Every AfroTech 2026 event, <span class='acc'>in one list.</span></h1><p class='jh-lede'><strong>{N} parties, mixers, dinners, runs and official meetups</strong> happening around AfroTech week in Houston. Filter by day, price and vibe, and find your rooms before they fill up.</p><a href='#unlock' class='jh-bp at-mcta'>Unlock the full list ↓</a><div class='at-stats'>{stat(N, 'Events')}{stat(N_FREE, 'Listed free')}{stat(TYPES['Official'], 'Official')}{stat(len(by_day), 'Days')}</div><p class='at-credit'>List compiled by <a href='https://linkedin.com/in/azokei' target='_blank' rel='noopener'>Keith Azodeh</a> at <a href='https://afrotech.guide/events' target='_blank' rel='noopener'>afrotech.guide</a>, organized by Jem Social. Snapshot from {SNAPSHOT}.</p></div>"""
+pieces['H_copy'] = f"""<div><div class='jh-pill'><span class='dot'></span>AfroTech 2026 · Houston · {first:%b} {first.day}–{last.day}</div><h1 class='jh-h1'>Every AfroTech 2026 event, <span class='acc'>in one list.</span></h1><p class='jh-lede'><strong>{N} parties, mixers, dinners, runs and official meetups</strong> happening around AfroTech week in Houston. Filter by day, price and vibe, and find your rooms before they fill up.</p><a href='#unlock' class='jh-bp at-mcta'>Unlock the full list ↓</a><div class='at-stats'>{stat(N, 'Events')}{stat(N_FREE, 'Listed free')}{stat(TYPES['Official'], 'Official')}{stat(len(by_day), 'Days')}</div><p class='at-credit'>Organized by Jem Social from public event listings. Updated {SNAPSHOT}.</p></div>"""
 
 pieces['G_cardhead'] = f"""<div class='at-card-eye'>Free · {N} events · {first:%b} {first.day}–{last.day}</div><div class='at-card-h'>Get the <span class='acc'>full list.</span></div><p class='at-card-p'>Enter your email to unlock every event, {first:%A} through {last:%A}.</p><ul class='at-card-ul'><li>Ticket and RSVP links for every event</li><li>Filter by free, parties, networking and more</li><li>Official, partner and community events</li></ul><div class='at-ok'>✓ You're in. The full list is unlocked. <a href='#nov-3'>Jump to Tuesday ↓</a></div>"""
 
@@ -293,7 +294,7 @@ faq = [
     ('Where do the events take place?', "Most are in Houston. Some venues are only shared after you RSVP, so check each event's page for the address."),
     ('Are these official AfroTech events?', f"Some are. <strong>{TYPES['Official']} are marked official, {TYPES['Partner']} are partner events and {TYPES['Community']} are hosted by the community.</strong> Check each event's own page for entry requirements."),
     ('How many events are free?', f"{N_FREE} of the {N} events are listed as free. The rest are paid or haven't posted a price yet."),
-    ('Who put this list together?', "The list is compiled by <a href='https://linkedin.com/in/azokei' target='_blank' rel='noopener'>Keith Azodeh</a> at <a href='https://afrotech.guide/events' target='_blank' rel='noopener'>afrotech.guide</a>. Jem Social organized it into this filterable page. Hosting an event? <a href='https://afrotech.guide/events?submit=1' target='_blank' rel='noopener'>Submit it to the list</a>."),
+    ('Who put this list together?', "Jem Social organized this list from public event pages and community event lists. Hosting an AfroTech event that's missing? Email <a href='mailto:support@jem.social'>support@jem.social</a>."),
     ('Is this list kept up to date?', f"This page reflects the list as of {SNAPSHOT}. Times, prices and venues change, so confirm on the event's link before you go."),
 ]
 faq_html = ''.join(f"<details class='jh-faq-item'><summary>{q}</summary><div class='jh-faq-a'>{a}</div></details>" for q, a in faq)
@@ -326,3 +327,11 @@ for k, v in pieces.items():
 json.dump(dict(N=N, N_FREE=N_FREE, TYPES=TYPES, N_PREVIEW=N_PREVIEW, N_LOCKED=N_LOCKED, days={str(k): len(v) for k, v in by_day.items()},
                cats=CAT_N, groups=len(groups)), open(f'{OUT}/stats.json', 'w'), indent=1, default=str)
 print(open(f'{OUT}/stats.json').read())
+
+import csv
+with open(f'{OUT}/afrotech_2026_events.csv', 'w', newline='') as f:
+    w = csv.writer(f)
+    w.writerow(['Date', 'Day', 'Start', 'End', 'Event', 'Host', 'Price', 'Type', 'Categories', 'Venue', 'Address', 'Tickets / RSVP', 'Description'])
+    for e in events:
+        w.writerow([e['date'].isoformat(), e['date'].strftime('%a'), e['when'], e['until'], e['name'], e['host'], e['ptxt'], e['type'],
+                    ', '.join(c.capitalize() for c in e['cats']), e['venue'], e['addr'], e['link'], e['full']])
