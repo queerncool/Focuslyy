@@ -47,7 +47,7 @@ The two remaining 7 am Threads posts (the 0.56x slot) moved into the midday wind
 | "Where top apps found their creators" | Mon Oct 26, 7:00 am | Mon Oct 26, 2:00 pm |
 | "Creator mistakes even big apps made" | Tue Oct 27, 7:00 am | Tue Oct 27, 12:30 pm |
 
-The 8 am to 11:15 am slots stay as they are. 8 am tests strong (3.15x, though only 3 posts), and 9 am and 11 am are close to typical (0.91x and 0.85x). That's not enough evidence to move 30+ posts.
+On Oct 26 the 20 UGC opportunity posts at 8 and 9 am were moved too, on request, into the same window (mostly 12:30 and 1:30 pm, with 2:30 and 2:45 pm on busier days). Every Threads post now sits at least 45 minutes from the next. The 10:15 and 11:15 am posts stay where they are.
 
 ## Re-running
 
