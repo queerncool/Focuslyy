@@ -13,7 +13,7 @@ W = os.path.expanduser('~/jem-sync'); os.makedirs(W, exist_ok=True)
 SITE_ID, COLL, OLD_COLL = '67b0d09acc5bda1c5c04566f', '6adc28d2f2806b611dd3a207', '69dae1304d0242f517edcc12'
 SITE, CDN, API = 'https://www.jem.social', 'https://cdn.prod.website-files.com/', 'https://api.webflow.com/v2'
 SIGNUP = 'https://app.jem.social/signup'
-MAX_NEW, MAX_REFRESH = int(os.environ.get('MAX_NEW', 6)), int(os.environ.get('MAX_REFRESH', 4))
+MAX_NEW, MAX_REFRESH = int(os.environ.get('MAX_NEW', 10)), int(os.environ.get('MAX_REFRESH', 4))
 REFRESH_DAYS, SKIP_DAYS = int(os.environ.get('REFRESH_DAYS', 27)), 60
 SHOW, MIN_BUILD, MIN_INDEX = 20, 5, 10
 MAX_ER = 20.0     # engagement above this is treated as a data error and left out

@@ -11,7 +11,7 @@
 
 ## Daily run
 
-1. `python3 jem_sync.py plan` picks up to 6 new pages and 4 stale ones (27+ days old, or built under
+1. `python3 jem_sync.py plan` picks up to 10 new pages and 4 stale ones (27+ days old, or built under
    older page rules). It prints one `search_influencers` argument set per page.
 2. Make those searches.
 3. `python3 jem_sync.py run` picks creators, uploads photos, writes and publishes the pages, and syncs
