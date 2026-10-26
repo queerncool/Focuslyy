@@ -56,6 +56,34 @@ NICHE_WORDS = {
  'fashion': r'fashion|style|stylist|outfit|ootd|wear|wardrobe|boutique|lifestyle',
  'other': r'money|financ|realtor|real estate|mortgage|insurance|attorney|lawyer'}
 
+# National pages built from one Jem search; they share the city template and get built before the next cities.
+# Copy placeholders: {N} creators shown, {total} Jem total, {M} "October 2026", {Mon} "Oct 2026".
+TOPICS = {
+ 'ugc-creators': {
+  'search': {'niche': 'ugc', 'location': 'United States'}, 'niche': 'ugc', 'Label': 'UGC Creators', 'crumb': 'UGC creators',
+  'noun': 'UGC creators', 'who': 'US UGC creators', 'scope': 'tagged UGC and based in the US',
+  'h1': 'Top {N} UGC Creators to Hire ({M})', 'title': 'Top {N} UGC Creators to Hire ({Mon}) | Jem Social',
+  'desc': "Browse {N} of Jem Social's {total} US UGC creators with follower counts and engagement rates.",
+  'intro': 'Jem Social has {total} UGC creators in the US with at least 5,000 followers. Here are {N} of them, sorted by engagement rate.',
+  'micro': '7-day free trial, then $69/month. Search UGC creators by niche, city, followers and engagement.',
+  'list': '{N} UGC creators', 'band': 'Hire UGC creators for your brand', 'steps': 'How to hire UGC creators',
+  'faqs': [
+   ('What is a UGC creator?', "A UGC (user-generated content) creator makes photos and videos that brands use in their own marketing and ads, such as reviews, "
+    "unboxings and tutorials. The brand gets the content to post itself, so the creator's own audience size matters less than for an influencer post.", None),
+   ('How many UGC creators are on Jem Social?', 'Jem Social lists {total} US creators tagged UGC with at least 5,000 followers as of {M}. This page shows {N} of them, sorted by engagement rate.', None),
+   ('How much do UGC creators charge?', "Rates depend on the deliverables, usage rights and the creator's experience. The UGC Rate Card Generator gives a starting point, and each creator's rate estimate is in Jem Social.",
+    "Rates depend on the deliverables, usage rights and the creator's experience. The <a href=\"/ugc-rate-card-generator\" class=\"jp-inline-link\">UGC Rate Card Generator</a> gives a starting point, and each creator's rate estimate is in Jem Social."),
+   ('How do I hire UGC creators?', "Start a 7-day free trial to see each creator's email and audience data. Then message them and pay through Jem Social, with funds held until you approve the content.", None),
+   ('How do I become a UGC creator?', "Make a free Jem Social creator profile to pitch brands and track every application in one place. Brands post open UGC roles on Jem Social's opportunities page.",
+    "Make a free Jem Social creator profile to pitch brands and track every application in one place. Brands post open UGC roles on the <a href=\"/opportunities\" class=\"jp-inline-link\">opportunities page</a>."),
+   ('How much does Jem Social cost?', 'For brands, Jem Social costs $69 per month after a 7-day free trial. For creators, pitching brands is free, or $20 per month for Premium.', None)],
+  'links': [('UGC resources', [('/ugc-rate-card-generator', 'UGC rate card generator'), ('/free-ugc-contract-template', 'Free UGC contract template'),
+                               ('/blog/what-is-ugc', 'What is UGC?'), ('/hire-tech-ugc-creators', 'Hire tech UGC creators')]),
+            ('For UGC creators', [('/blog/how-to-become-a-ugc-creator', 'How to become a UGC creator'), ('/opportunities', 'Open brand opportunities'),
+                                  ('/blog/ugc-jobs', 'UGC jobs'), ('/earn-money-as-a-ugc-creator', 'Earn money as a UGC creator')])],
+  'old': ['find-ugc-creators', 'ugc-creator', 'ugc-content-creator']},
+}
+
 def slugify(s): return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
 def esc(s): return html.escape(str(s), quote=True)
 def slug_for(city, st, niche): return f'{slugify(city)}-{st.lower()}' if not niche else f'{niche}-influencers-in-{slugify(city)}-{st.lower()}'
@@ -64,6 +92,7 @@ def signup(slug): return f'{SIGNUP}?utm_source=seo&amp;utm_medium=city-page&amp;
 ROLE = {'creator', 'coach', 'trainer', 'influencer', 'blogger', 'vlogger', 'model', 'official', 'fitness', 'lifestyle', 'beauty',
         'fashion', 'food', 'foodie', 'travel', 'pro', 'aging', 'community', 'ugc', 'content', 'personal', 'mua', 'stylist', 'chef',
         'photographer', 'photography', 'photo', 'llc'}
+GENERIC = ROLE | {'collaboration', 'collaborations', 'collab', 'collabs', 'brands', 'brand', 'with', 'and', 'for', '&', 'dm', 'business', 'inquiries'}
 def clean_name(raw, handle):
     # Jem names often carry bio text: "BRITTFIT MIAMI 🌴 Fitness community", "Alex P | Fitness Coach"
     s = unicodedata.normalize('NFKC', raw or '')    # fancy-font letters (e.g. Fraktur) -> plain
@@ -75,7 +104,8 @@ def clean_name(raw, handle):
     s = ' '.join(words).strip(" .-'")
     if s.isupper() and len(s) > 3: s = ' '.join(w.capitalize() if len(w) > 2 else w for w in s.split())
     elif s.islower(): s = s.title()
-    return s or handle
+    if not s or all(w.lower().strip('.') in GENERIC for w in s.split()): return handle   # "Ugc", "Collaboration with brands"
+    return s
 def save(name, obj): json.dump(obj, open(f'{W}/{name}', 'w'), ensure_ascii=False)
 def load(name): return json.load(open(f'{W}/{name}'))
 def km(a, b):
@@ -194,37 +224,42 @@ def cmd_plan():
     items, today = list_items(COLL), datetime.date.today()
     by = {it['fieldData']['slug']: it for it in items}
     work = []
-    def add(city, st, niche, it, new):
-        work.append({'new': new, 'id': it['id'] if it else None, 'city': city, 'st': st, 'niche': niche, 'slug': slug_for(city, st, niche)})
+    def add(city, st, niche, it, new, slug=None):
+        work.append({'new': new, 'id': it['id'] if it else None, 'city': city, 'st': st, 'niche': niche, 'slug': slug or slug_for(city, st, niche)})
+    def waiting(it):
+        if not it: return True
+        f, fp = it['fieldData'], it['fieldData'].get('data-fingerprint') or ''
+        if not it['isDraft'] and f.get('creators-table'): return False
+        return not (fp.startswith('skip:') and (today - datetime.date.fromisoformat(fp[5:15])).days < SKIP_DAYS)
+    for sl, t in TOPICS.items():
+        if sum(w['new'] for w in work) < MAX_NEW and waiting(by.get(sl)): add('', '', t['niche'], by.get(sl), True, sl)
     for nichs in PASSES:
         for city, st, *_ in PRIORITY:
             for n in nichs:
                 if sum(w['new'] for w in work) >= MAX_NEW: break
                 it = by.get(slug_for(city, st, n))
-                if it:
-                    f = it['fieldData']
-                    if not it['isDraft'] and f.get('creators-table'): continue
-                    fp = f.get('data-fingerprint') or ''
-                    if fp.startswith('skip:') and (today - datetime.date.fromisoformat(fp[5:15])).days < SKIP_DAYS: continue
-                add(city, st, n, it, True)
+                if waiting(it): add(city, st, n, it, True)
     def age(it):
         d = (it['fieldData'].get('data-updated') or '')[:10]
         return (today - datetime.date.fromisoformat(d)).days if d else 999
     live = [it for it in items if not it['isDraft'] and it['fieldData'].get('creators-table')]
     stale = [it for it in live if age(it) >= REFRESH_DAYS or not (it['fieldData'].get('data-fingerprint') or '').startswith(FPV)]
     for it in sorted(stale, key=age, reverse=True)[:MAX_REFRESH]:
-        f = it['fieldData']; add(f['city'], f['state'], f.get('niche') or None, it, False)
+        f = it['fieldData']; add(f.get('city') or '', f.get('state') or '', f.get('niche') or None, it, False, f['slug'])
     save('plan.json', {'work': work, 'date': today.isoformat()})
     print(f'{sum(w["new"] for w in work)} new + {sum(not w["new"] for w in work)} refresh pages ({len(items)} items in the collection).')
     print('\nsearch_influencers calls, one per line (all with min_followers 5000, limit 25):')
-    for w in work:
-        q = {'location': f"{w['city']}, {w['st']}", 'min_followers': 5000, 'limit': 25}
-        if w['niche']: q = {'niche': w['niche'], **q}
-        print(json.dumps(q))
+    for w in work: print(json.dumps(search_args(w)))
+
+def search_args(w):
+    t = TOPICS.get(w['slug'])
+    q = dict(t['search']) if t else {'location': f"{w['city']}, {w['st']}"}
+    if w['niche'] and not t: q = {'niche': w['niche'], **q}
+    return {**q, 'min_followers': 5000, 'limit': 25}
 
 # ---------- creators + photos ----------
 def off_niche(name, niche):
-    if not niche: return False
+    if niche not in NICHE_WORDS: return False
     t, rx = name.lower(), lambda k: re.search(r'\b(?:' + NICHE_WORDS[k] + ')', t)
     if rx(niche): return False
     return any(rx(k) for k in NICHE_WORDS if k != niche)
@@ -294,6 +329,8 @@ def render(w, f, rows, total, photos, old, live):
     small = [r['er'] for r in rows if r['f'] < 50000]; big = [r['er'] for r in rows if r['f'] >= 100000]
     noun = f'{niche} creators' if niche else 'creators'            # "food creators"
     who = f'{city} {noun}'                                          # "Chicago food creators"
+    t = TOPICS.get(slug)                                            # national page, e.g. /influencers/ugc-creators
+    if t: noun, who, Niche = t['noun'], t['who'], t['Label']
     su = signup(slug)
     # table
     trs = ''.join(
@@ -339,14 +376,19 @@ def render(w, f, rows, total, photos, old, live):
         cols = [(f'{city} by niche', other[:4]), (f'Influencers near {city}', near[:4])]
     browse.append(('/engagement-rate-calculator', 'Engagement rate calculator'))
     cols.append(('Browse all', browse))
+    if t:
+        hubs = [(f'/influencers/{slug_for(c, s, None)}', f'Influencers in {c}') for c, s, *_ in PRIORITY if slug_for(c, s, None) in live][:4]
+        cols = t['links'] + ([('Creators by city', hubs)] if hubs else [])
     col = lambda lab, ls: (f'<div class="jp-related-col"><div class="jp-label">{esc(lab)}</div>' + ''.join(f'<a href="{h}" class="jp-link">{esc(t)}</a>' for h, t in ls) + '</div>') if ls else ''
     related = '<div class="jp-related">' + ''.join(col(a, b) for a, b in cols) + '</div>'
     crumb_city = (f'<a href="{hub_url}" class="jp-crumb-link">{esc(city)}</a>' if hub_url and niche else
                   f'<span class="jp-crumb-{"link" if niche else "current"}">{esc(city)}</span>')
     crumbs = f'<div class="jp-crumbs"><a href="/" class="jp-crumb-link">Home</a><span class="jp-crumb-sep">/</span>{crumb_city}' + \
              (f'<span class="jp-crumb-sep">/</span><span class="jp-crumb-current">{esc(Niche)}</span>' if niche else '') + '</div>'
+    if t: crumbs = f'<div class="jp-crumbs"><a href="/" class="jp-crumb-link">Home</a><span class="jp-crumb-sep">/</span><span class="jp-crumb-current">{esc(t["crumb"])}</span></div>'
     glance = lambda num, lab, d='': f'<div class="jp-glance-item{d}"><div class="jp-glance-num">{num}</div><div class="jp-glance-label">{esc(lab)}</div></div>'
-    stats = (f'<p class="jp-micro">7-day free trial, then $69/month. Search creators in every city and niche, not just {esc(city)}.</p><div class="jp-glance">'
+    micro = esc(t['micro']) if t else f'7-day free trial, then $69/month. Search creators in every city and niche, not just {esc(city)}.'
+    stats = (f'<p class="jp-micro">{micro}</p><div class="jp-glance">'
              + glance(f'{total:,}', f'{who} on Jem Social') + glance(fer(med), 'median engagement on this page', ' jp-glance-divider')
              + glance(f'{fnum(lo)}–{fnum(hi)}', 'follower range on this page', ' jp-glance-divider')
              + glance(f'{share}%', f'on {PLAT[top][0]}', ' jp-glance-divider') + '</div>')
@@ -395,6 +437,12 @@ def render(w, f, rows, total, photos, old, live):
         desc = f"Browse {N} of Jem Social's {total:,} {city} {niche} influencers with follower counts and engagement rates."
         intro = f'Jem Social has {total:,} {niche} creators in the {city} area with at least 5,000 followers. Here are {N} of them, sorted by engagement rate.'
         list_h, band_h, steps_h = f'{N} {city} {niche} creators', f'Reach {city} {niche} creators directly', f'How to run a {niche} campaign with {city} creators'
+    if t:
+        fm = lambda x: x.format(N=N, M=M, Mon=Mon, total=f'{total:,}')
+        h1, title, desc, intro = fm(t['h1']), fm(t['title']), fm(t['desc']), fm(t['intro'])
+        list_h, band_h, steps_h = fm(t['list']), t['band'], t['steps']
+        faqs = [(q, fm(a), fm(h) if h else None) for q, a, h in t['faqs']]
+        faq = '<div class="jp-faq">' + ''.join(f'<div class="jp-qa"><h3 class="jp-q">{esc(q)}</h3><p class="jp-a">{h or esc(a)}</p></div>' for q, a, h in faqs) + '</div>'
     if len(title) > 60: title = title.replace(' | Jem Social', '')
     meta = desc + ' See contact info with a 7-day free trial.'
     if len(meta) > 160: meta = desc
@@ -407,19 +455,19 @@ def render(w, f, rows, total, photos, old, live):
         {'@type': 'WebPage', '@id': url + '#webpage', 'url': url, 'name': h1, 'description': desc, 'dateModified': pulled.isoformat(), 'inLanguage': 'en',
          'isPartOf': {'@type': 'WebSite', 'name': 'Jem Social', 'url': SITE + '/'}, 'breadcrumb': {'@id': url + '#breadcrumb'}, 'mainEntity': {'@id': url + '#list'}},
         {'@type': 'BreadcrumbList', '@id': url + '#breadcrumb', 'itemListElement': crumbs_ld},
-        {'@type': 'ItemList', '@id': url + '#list', 'name': f'{Niche + " influencers" if niche else "Influencers"} in {city}, {st}', 'numberOfItems': N,
+        {'@type': 'ItemList', '@id': url + '#list', 'name': t['who'] if t else f'{Niche + " influencers" if niche else "Influencers"} in {city}, {st}', 'numberOfItems': N,
          'itemListOrder': 'https://schema.org/ItemListOrderDescending', 'itemListElement': [{'@type': 'ListItem', 'position': i, 'item': person(r)} for i, r in enumerate(rows, 1)]},
         {'@type': 'FAQPage', '@id': url + '#faq', 'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a, _ in faqs]}]}
     ld = json.dumps(graph, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
     rt = lambda x: f'<div data-rt-embed-type="true">{x}</div>'
-    scope = f'tagged {niche} and based in the {city} area' if niche else f'based in the {city} area, in any niche'
+    scope = t['scope'] if t else f'tagged {niche} and based in the {city} area' if niche else f'based in the {city} area, in any niche'
     method = (f'How this list was made: Jem Social creators {scope}, with at least 5,000 followers, sorted by engagement rate. '
-              + ('Creators whose profile names point to a different niche are left out. ' if niche else '')
+              + ('Creators whose profile names point to a different niche are left out. ' if niche in NICHE_WORDS else '')
               + f'Engagement rates above {MAX_ER:g}% are left out as likely data errors. Data pulled from Jem Social on {pulled.strftime("%B")} {pulled.day}, {pulled.year}.')
-    olds = [o for o in ([f'find-{niche}-influencers-in-{cs}', f'hire-{niche}-influencers-in-{cs}-{st.lower()}', f'hire-{niche}-influencers-in-{cs}']
+    olds = [o for o in (t['old'] if t else [f'find-{niche}-influencers-in-{cs}', f'hire-{niche}-influencers-in-{cs}-{st.lower()}', f'hire-{niche}-influencers-in-{cs}']
                         if niche else [f'influencers-in-{cs}']) if o in old]
     approved = bool(f.get('approved'))
-    return {
+    out = {
         'name': f'{Niche + " " if niche else ""}Influencers in {city}, {st}', 'slug': slug, 'city': city, 'state': st,
         'niche': niche or '', 'niche-label': Niche,
         'h1': h1, 'intro': intro, 'hero-button-text': f'See all {total:,} creators, free for 7 days', 'creator-total': f'{total:,}',
@@ -432,6 +480,8 @@ def render(w, f, rows, total, photos, old, live):
         'old-urls': ', '.join(f'/find-influencers/{o}' for o in olds),
         'breadcrumb': rt(crumbs), 'hero-stats': rt(stats), 'creators-table': rt(table), 'insights': rt(insights),
         'faq': rt(faq), 'related-links': rt(related), 'schema-markup': rt(f'<script type="application/ld+json">{ld}</script>')}
+    if t: out.update({'name': t['Label'], 'niche-label': t['niche'].upper() if len(t['niche']) <= 3 else t['niche'].capitalize()})
+    return out
 
 # ---------- run ----------
 def cmd_run():
@@ -448,7 +498,7 @@ def cmd_run():
     live = {it['fieldData']['slug'] for it in items if not it['isDraft'] and it['fieldData'].get('creators-table')}
     rep = {'built': [], 'refreshed': [], 'unchanged': [], 'too_few': [], 'no_data': [], 'robots': [], 'uploaded': 0}
     for w in plan['work']:
-        res = J.get((w['niche'], f"{w['city']}, {w['st']}"))
+        q = search_args(w); res = J.get((q.get('niche'), q['location']))
         if not res: rep['no_data'].append(w['slug']); continue
         rows = []
         for r in candidates(res, exclude, w['niche']):
@@ -467,7 +517,7 @@ def cmd_run():
         f = it['fieldData'] if it else {}
         if len(w['rows']) < MIN_BUILD:
             rep['too_few'].append(f"{w['slug']} ({len(w['rows'])})")
-            if w['new']:
+            if w['new'] and w['slug'] not in TOPICS:
                 mark = {'name': f"{(w['niche'] or '').capitalize() + ' ' if w['niche'] else ''}Influencers in {w['city']}, {w['st']}",
                         'slug': w['slug'], 'city': w['city'], 'state': w['st'], 'niche': w['niche'] or '', 'niche-label': (w['niche'] or '').capitalize(),
                         'data-fingerprint': f'skip:{datetime.date.today().isoformat()}:{len(w["rows"])}', 'robots': 'noindex, follow'}
