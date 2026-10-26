@@ -1,96 +1,102 @@
 # AfroTech carousels: captions and DM replies
 
 Each carousel is 9 slides, 1080×1350 (Instagram 4:5). Upload the PNGs in order (01 → 09).
-The pink cover stands out in both light and dark mode; the inside slides are white for readability.
 Every DM link carries its own `utm_content`, so signups from each post show up separately in Brevo (AT26_POST) and GA4.
+Auto-DM keyword: `link` (set the reply per post so each keeps its own link).
 
 ---
 
-## 1. Creators · post today, Mon Oct 26
+## 1. creators · post today, mon oct 26
 
-**Caption**
+**caption**
 
-AfroTech week starts Sunday in Houston, and there are 101 events on the list. If you make content, start with these 6 👇
+afrotech is next week and there are 101 events on the calendar 😮‍💨
 
-→ La Sala: AfroTech Kickoff (free)
-→ ORIGINALITY: Influence vs Imagination
-→ Activated by AJANI
-→ Ladies in Tech & Entertainment Happy Hour
-→ Blavity House Party Block Party
-→ Black Women in Tech, Film & Creative Industries Brunch
+we went through every single one so you don't have to. if you make content, these are the rooms you wanna be in 👀📸
 
-Plus the two we're part of: The Green Room (Sun) and Sapphic Hour (Thu).
+01 la sala kickoff (free!!) 🥂
+02 originality art exhibition 🎨
+03 activated by ajani ✨🛍️
+04 ladies in tech & entertainment happy hour 💅
+05 blavity house party block party 🎶🔥
+06 black women in tech, film & creative brunch 🥞
 
-Want all 101, sorted by parties, networking, career and founder events? Comment LINK and we'll DM it to you.
+and pls come find us 🫶 the green room on sunday 🌿 + sapphic hour on thursday 💻💖
 
-Send this to the creator you're pulling up with 📲
+comment "link" and we'll slide all 101 into your dms 📩
 
-#AfroTech #AfroTech2026 #AfroTechWeek #HoustonEvents #ContentCreator #UGCCreator #CreatorEconomy #BlackCreators #Houston
+tag the creator you're pulling up with 👇
 
-**DM reply**
+#afrotech #afrotech2026 #afrotechweek #houstonevents #contentcreator #ugccreator #creatoreconomy #blackcreators
 
-Here's the full AfroTech 2026 list 👉 https://www.jem.social/afrotech-2026-events?utm_source=instagram&utm_medium=social&utm_campaign=afrotech26&utm_content=creators
-Pop your email in to unlock all 101 events and we'll email you a copy too. See you out there! – Bree
+**dm reply**
 
----
-
-## 2. Brands · post Thu Oct 29
-
-**Caption**
-
-Bringing your brand to AfroTech, or want to see how the big ones show up? These are the brand activations worth seeing in person 👇
-
-→ AFROTECH × OOO Lounge: Cultural Living (official)
-→ Amazon House 2026
-→ Access Unlocked by Microsoft
-→ The Cool Down: Powered by Martell
-→ Ancestry Presents: Black Tapestry (free)
-→ A Mad Nice AfroTech, sponsored by Jack Daniel's
-
-And come meet creators at The Green Room on Sunday. We're a sponsor.
-
-Comment LINK for all 101 AfroTech events, sorted by type.
-
-Send this to your marketing team 📲
-
-#AfroTech #AfroTech2026 #BrandActivation #InfluencerMarketing #CreatorMarketing #ExperientialMarketing #HoustonEvents #MarketingTeam
-
-**DM reply**
-
-Here's the full AfroTech 2026 list 👉 https://www.jem.social/afrotech-2026-events?utm_source=instagram&utm_medium=social&utm_campaign=afrotech26&utm_content=brands
-Pop your email in to unlock all 101 events and we'll email you a copy too. If you're looking for creators for an activation, that's what Jem Social is for. – Bree
+heyyy 👋 here's the full afrotech list 🔥
+https://www.jem.social/afrotech-2026-events?utm_source=instagram&utm_medium=social&utm_campaign=afrotech26&utm_content=creators
+pop your email in to unlock all 101 and we'll send a copy to your inbox too 📩 see you out there!! – bree 💗
 
 ---
 
-## 3. Founders · post Mon Nov 2
+## 2. brands · post thu oct 29
 
-**Caption**
+**caption**
 
-AfroTech week is here. Founders, these are the 6 rooms we'd clear the calendar for, Tue to Fri 👇
+brands 👀 if you're heading to afrotech, consider this your field trip 🚌
 
-→ CTRL + ALT + ALIGN: A Founder Reset
-→ Innovation x Culture Summit (free)
-→ Founder Power Breakfast (apply, Seed to Series A)
-→ Conversation and Cocktails by Wilson Sonsini
-→ HuLane: Houston Edition (free)
-→ 6PM in Houston (free for the first 200 by 7 PM)
+the activations worth seeing irl (aka the ones your cmo is gonna ask about 😭):
 
-Find us Thursday at Sapphic Hour.
+01 afrotech × ooo lounge 🛋️ (official)
+02 amazon house 2026 📦
+03 access unlocked by microsoft 💻
+04 the cool down, powered by martell 🥃🏎️
+05 ancestry presents: black tapestry 🧬 (free)
+06 a mad nice afrotech, sponsored by jack daniel's 🎤
 
-Comment LINK for all 101 AfroTech events, including 23 parties and 42 networking events.
+wanna meet creators? pull up to the green room on sunday 🌿 we're a sponsor, come say hi 🫶
 
-Send this to a founder who's in Houston this week 📲
+comment "link" for all 101 events, sorted by type 📩
+send this to your marketing team chat rn 📲
 
-#AfroTech #AfroTech2026 #Founders #BlackFounders #StartupLife #HoustonStartups #HoustonEvents #BuildInPublic
+#afrotech #afrotech2026 #brandactivation #influencermarketing #creatormarketing #experientialmarketing #houstonevents
 
-**DM reply**
+**dm reply**
 
-Here's the full AfroTech 2026 list 👉 https://www.jem.social/afrotech-2026-events?utm_source=instagram&utm_medium=social&utm_campaign=afrotech26&utm_content=founders
-Pop your email in to unlock all 101 events and we'll email you a copy too. Good luck this week! – Bree
+hey hey 👋 here's every afrotech event in one place 🔥
+https://www.jem.social/afrotech-2026-events?utm_source=instagram&utm_medium=social&utm_campaign=afrotech26&utm_content=brands
+unlock it with your email and we'll send a copy to your inbox 📩 and if you need creators for an activation, that's literally what jem social does 😉 – bree
 
 ---
 
-### Notes
+## 3. founders · post mon nov 2
 
-- Slide copy only uses details from the events' own listings. Venues marked "TBA" or "shared after RSVP" are shown that way on purpose.
-- If you use an auto-DM tool for the keyword LINK, set the reply per post so each one keeps its own link.
+**caption**
+
+founders, it's officially afrotech week 🚀 your calendar is about to be chaos
+
+we went through all 101 events. these 6 are worth blocking off time for 👇
+
+01 ctrl + alt + align: a founder reset 🧘 (pilates before the chaos)
+02 innovation x culture summit 💡 (free)
+03 founder power breakfast 🥐 (apply, seed to series a)
+04 conversation & cocktails by wilson sonsini 🍸
+05 hulane: houston edition 🤝 (free)
+06 6pm in houston 🌆 (free for the first 200 by 7pm)
+
+and come find us thursday at sapphic hour 💻💖
+
+comment "link" for the full list of 101 📩
+send this to the founder in your group chat who's "just networking" this week 😭📲
+
+#afrotech #afrotech2026 #founders #blackfounders #startuplife #houstonstartups #buildinpublic
+
+**dm reply**
+
+hiii 👋 here's the full afrotech list 🔥
+https://www.jem.social/afrotech-2026-events?utm_source=instagram&utm_medium=social&utm_campaign=afrotech26&utm_content=founders
+drop your email to unlock all 101 and we'll send a copy to your inbox 📩 go get it this week 🚀 – bree
+
+---
+
+### notes
+
+- slide copy only uses details from the events' own listings. venues marked "tba" or "shared after rsvp" are shown that way on purpose.
