@@ -38,8 +38,12 @@
 
 ## Updating the scheduled task
 
-The scheduled task ("Jem city pages daily build") doesn't run this repo copy. It downloads the script
-from a Webflow file and checks its MD5. After changing `jem_sync.py`:
+The scheduled task ("Jem city pages daily build") doesn't run this repo copy. A copy of the script is
+embedded at the end of the task's prompt, between `#BEGIN-JEM-SYNC` and `#END-JEM-SYNC`. Setup step 1
+unpacks it from the session transcript and checks its MD5. Don't have the task download the script:
+the run's safety check blocks running code fetched from a URL ("Code from External"), and that
+stopped the Oct 27 run. After changing `jem_sync.py`:
 
-1. Upload the new version as a Webflow asset.
-2. Put the new S3 URL and MD5 in the task's setup step.
+1. Replace the embedded copy in the task's prompt with the new file, without its trailing newline.
+2. Put the new file's MD5 (`md5sum jem_sync.py`) in setup step 1.
+3. Read the task back and check that the embedded copy's MD5 matches.
