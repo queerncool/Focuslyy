@@ -46,7 +46,7 @@ PRIORITY = [
  ('Oakland', 'CA', 37.80, -122.27), ('Boulder', 'CO', 40.01, -105.27), ('Ann Arbor', 'MI', 42.28, -83.74),
  ('Sarasota', 'FL', 27.34, -82.53), ('Raleigh', 'NC', 35.78, -78.64), ('Bakersfield', 'CA', 35.37, -119.02)]
 COORD = {(c, s): (la, lo) for c, s, la, lo in PRIORITY}
-PASSES = [(None, 'food'), ('fitness', 'beauty', 'fashion')]   # hub + food for every city first, then niche pages
+PASSES = [(None,), ('food',), ('fitness', 'beauty', 'fashion')]   # every city hub first (buyer searches), then food, then niches
 NICHES = ['food', 'fitness', 'beauty', 'fashion']
 # words in a creator's profile name that tie them to a niche; a niche page leaves out names that only point elsewhere
 NICHE_WORDS = {
@@ -89,7 +89,7 @@ TOPICS = {
   'search': {'niche': 'fitness', 'location': 'United States'}, 'niche': 'fitness', 'Label': 'Fitness Influencers', 'crumb': 'Fitness influencers',
   'noun': 'fitness creators', 'who': 'US fitness creators', 'scope': 'tagged fitness and based in the US', 'city_niche': 'fitness',
   'city_label': 'Fitness influencers by city',
-  'h1': 'Top {N} Fitness Influencers in the US ({M})', 'title': 'Top {N} Fitness Influencers in the US ({Mon}) | Jem Social',
+  'h1': 'Top {N} Fitness Influencers for Brands ({M})', 'title': 'Top {N} Fitness Influencers for Brands ({Mon}) | Jem Social',
   'desc': "Browse {N} of Jem Social's {total} US fitness influencers with follower counts and engagement rates.",
   'intro': 'Jem Social has {total} fitness creators in the US with at least 5,000 followers. Here are {N} of them, sorted by engagement rate.',
   'micro': '7-day free trial, then $69/month. Search fitness creators by city, followers and engagement.',
@@ -110,7 +110,7 @@ TOPICS = {
   'old': ['find-fitness-influencers', 'best-fitness-influencers', 'top-fitness-influencers']},
  'tech-ugc-creators': {
   # Jem's tech tag also matches job titles like "Nail Tech", so those are dropped
-  'search': {'niche': 'tech', 'query': 'ugc', 'location': 'United States'}, 'niche': 'tech', 'Label': 'Tech UGC Creators', 'crumb': 'Tech',
+  'search': {'niche': 'tech', 'query': 'ugc', 'location': 'United States'}, 'niche': 'tech', 'Label': 'Tech UGC Creators', 'crumb': 'Tech', 'more_label': 'Tech UGC creators',
   'parent': ('/influencers/ugc-creators', 'UGC creators'), 'drop': r'\b(?:nail|lash|brow|vet|pharmacy|surgical|esthetic|hair|massage) tech',
   'noun': 'tech UGC creators', 'who': 'US tech UGC creators', 'scope': 'tagged tech and based in the US, whose profiles mention UGC', 'city_niche': False,
   'h1': 'Top {N} Tech UGC Creators to Hire ({M})', 'title': 'Top {N} Tech UGC Creators to Hire ({Mon}) | Jem Social',
@@ -133,6 +133,61 @@ TOPICS = {
             ('More UGC', [('/influencers/ugc-creators', 'All UGC creators'), ('/free-ugc-contract-template', 'Free UGC contract template'), ('/blog/what-is-ugc', 'What is UGC?')])],
   'old': []},
 }
+
+TOOLS = [('/engagement-rate-calculator', 'Engagement rate calculator'), ('/influencer-rate-calculator', 'Influencer rate calculator'),
+         ('/campaign-brief-generator', 'Campaign brief generator')]
+
+def national(slug, label, lbl, noun, search, scope, fphrase='with at least 5,000 followers', city_niche=False, define=None, extra=(), old=None):
+    """A US-wide list like /influencers/tiktok. label 'TikTok Influencers', lbl 'TikTok influencers', noun 'TikTok creators'."""
+    base = slug
+    faqs = [(f'Who are the top {lbl} on Jem Social?', 'By engagement rate, the top three on this page are {top3}.', None),
+            (f'How many {lbl} are on Jem Social?', 'Jem Social lists {total} US ' + noun + ' ' + fphrase + ' as of {M}. This page shows {N} of them, sorted by engagement rate.', None)]
+    if define: faqs.append(define)
+    faqs += [(f'What engagement rate do {lbl} get?', 'The median engagement rate among the {N} creators on this page is {med}. Engagement varies with audience size, so compare creators in the same follower range.', None),
+             (f'How much do {lbl} charge?', "Rates depend on followers, platform and deliverables. The Influencer Rate Calculator gives a starting point, and each creator's rate estimate is in Jem Social.",
+              "Rates depend on followers, platform and deliverables. The <a href=\"/influencer-rate-calculator\" class=\"jp-inline-link\">Influencer Rate Calculator</a> gives a starting point, and each creator's rate estimate is in Jem Social."),
+             ('How do I contact these creators?', "Start a 7-day free trial to see each creator's email and audience data, then message them from Jem Social.", None),
+             ('How much does Jem Social cost?', 'Jem Social costs $69 per month after a 7-day free trial. One plan covers creator search in every city and niche, outreach and campaign management.', None)]
+    return slug, {
+        'search': search, 'niche': search.get('niche') or slug, 'Label': label, 'crumb': lbl, 'noun': noun, 'who': f'US {noun}',
+        'scope': scope, 'fphrase': fphrase, 'city_niche': city_niche, 'city_label': f'{lbl} by city' if city_niche else 'Influencers by city',
+        'h1': f'Top {{N}} {label} for Brands ({{M}})', 'title': f'Top {{N}} {label} for Brands ({{Mon}}) | Jem Social',
+        'desc': f"Browse {{N}} of Jem Social's {{total}} US {lbl} with follower counts and engagement rates.",
+        'intro': f'Jem Social has {{total}} US {noun} {fphrase}. Here are {{N}} of them, sorted by engagement rate.',
+        'micro': '7-day free trial, then $69/month. Search creators by niche, city, followers and engagement.',
+        'list': f'{{N}} US {lbl}', 'band': f'Reach {lbl} directly', 'steps': f'How to run a campaign with {lbl}',
+        'faqs': faqs, 'links': ([('Related pages', list(extra))] if extra else []) + [('Tools', TOOLS)],
+        'old': old if old is not None else [f'find-{base}-influencers', f'best-{base}-influencers', f'top-{base}-influencers', f'{base}-influencers']}
+
+US = 'United States'
+# Searches DataForSEO rates mostly commercial (buyers), highest US volume first. TikTok, Instagram and YouTube
+# influencers are left out: 71-95% of those searches are informational (people looking for creators to follow).
+NATIONAL = [
+ national('golf', 'Golf Influencers', 'golf influencers', 'golf creators', {'niche': 'golf', 'location': US}, 'tagged golf and based in the US'),
+ national('fashion', 'Fashion Influencers', 'fashion influencers', 'fashion creators', {'niche': 'fashion', 'location': US}, 'tagged fashion and based in the US',
+          city_niche='fashion', extra=[('/urban-fashion-influencers', 'Urban fashion influencers'), ('/amazon-mens-fashion-influencers', "Amazon men's fashion influencers"),
+                                       ('/creator-pages/how-to-pitch-brands-as-a-fashion-creator', 'For creators: pitch fashion brands')]),
+ national('micro', 'Micro Influencers', 'micro influencers', 'micro influencers', {'location': US, 'min_followers': 10000, 'max_followers': 100000},
+          'based in the US', fphrase='with 10,000 to 100,000 followers', city_niche=None,
+          define=('What is a micro influencer?', 'On this page, a micro influencer is a creator with 10,000 to 100,000 followers. Definitions vary between agencies and platforms.', None),
+          extra=[('/blog-micro-influencer-vs-macro-influencer', 'Micro vs. macro influencers'), ('/influencer-marketing/micro-influencer', 'Micro influencer marketing'),
+                 ('/find-influencers/micro-influencer-platform', 'Micro influencer platform')],
+          old=['find-micro-influencers', 'best-micro-influencers', 'top-micro-influencers', 'micro-influencers']),
+ national('beauty', 'Beauty Influencers', 'beauty influencers', 'beauty creators', {'niche': 'beauty', 'location': US}, 'tagged beauty and based in the US',
+          city_niche='beauty', extra=[('/top-beauty-influencers', 'Top beauty influencers'), ('/clean-beauty-influencers', 'Clean beauty influencers'),
+                                      ('/creator-pages/how-to-pitch-brands-as-a-beauty-creator', 'For creators: pitch beauty brands')]),
+ national('food', 'Food Influencers', 'food influencers', 'food creators', {'niche': 'food', 'location': US}, 'tagged food and based in the US',
+          city_niche='food', extra=[('/famous-food-influencers', 'Famous food influencers'), ('/food-and-beverage-influencers', 'Food and beverage influencers'),
+                                    ('/local-food-influencers', 'Local food influencers'), ('/creator-pages/how-to-pitch-brands-as-a-food-creator', 'For creators: pitch food brands')]),
+ national('nano', 'Nano Influencers', 'nano influencers', 'nano influencers', {'location': US, 'min_followers': 1000, 'max_followers': 10000},
+          'based in the US', fphrase='with 1,000 to 10,000 followers', city_niche=None,
+          define=('What is a nano influencer?', 'On this page, a nano influencer is a creator with 1,000 to 10,000 followers. Definitions vary between agencies and platforms.', None),
+          extra=[('/influencers/micro', 'Micro influencers (10K to 100K)')], old=['find-nano-influencers', 'best-nano-influencers', 'top-nano-influencers', 'nano-influencers']),
+ national('travel', 'Travel Influencers', 'travel influencers', 'travel creators', {'niche': 'travel', 'location': US}, 'tagged travel and based in the US',
+          extra=[('/top-travel-influencers', 'Top travel influencers'), ('/creator-pages/how-to-pitch-brands-as-a-travel-creator', 'For creators: pitch travel brands')]),
+]
+
+TOPICS.update(dict(NATIONAL))
 
 def slugify(s): return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
 def esc(s): return html.escape(str(s), quote=True)
@@ -247,7 +302,8 @@ def blocks(content):
 
 def jkey(q):
     n = q.get('niche') or None
-    return (tuple(n) if isinstance(n, list) else n, q.get('location'), q.get('query') or None, q.get('min_followers'))
+    return (tuple(n) if isinstance(n, list) else n, q.get('location'), q.get('query') or None, q.get('platform') or None,
+            q.get('min_followers'), q.get('max_followers'))
 
 def jem():
     path = os.environ.get('JEM_TRANSCRIPT') or max(glob.glob(os.path.expanduser('~/.claude/projects/*/*.jsonl')), key=os.path.getmtime)
@@ -306,14 +362,14 @@ def cmd_plan():
         f = it['fieldData']; add(f.get('city') or '', f.get('state') or '', f.get('niche') or None, it, False, f['slug'])
     save('plan.json', {'work': work, 'date': today.isoformat()})
     print(f'{sum(w["new"] for w in work)} new + {sum(not w["new"] for w in work)} refresh pages ({len(items)} items in the collection).')
-    print('\nsearch_influencers calls, one per line (all with min_followers 5000, limit 25):')
+    print('\nsearch_influencers calls, one per line; use exactly these arguments:')
     for w in work: print(json.dumps(search_args(w)))
 
 def search_args(w):
     t = TOPICS.get(w['slug'])
     q = dict(t['search']) if t else {'location': f"{w['city']}, {w['st']}"}
     if w['niche'] and not t: q = {'niche': w['niche'], **q}
-    return {**q, 'min_followers': 5000, 'limit': 25}
+    return {'min_followers': 5000, **q, 'limit': 25}
 
 # ---------- creators + photos ----------
 def off_niche(name, niche):
@@ -322,13 +378,13 @@ def off_niche(name, niche):
     if rx(niche): return False
     return any(rx(k) for k in NICHE_WORDS if k != niche)
 
-def candidates(res, exclude, niche, drop=None):
+def candidates(res, exclude, niche, drop=None, min_f=5000):
     rows, seen = [], set()
     for r in res.get('results') or []:
         p, plat = r.get('profile') or {}, (r.get('platform') or '').lower()
         u = (p.get('username') or '').strip().lstrip('@')
         f, er = p.get('followers'), p.get('engagement_percent')
-        if plat not in PLAT or not u or not p.get('picture') or not f or er is None or er <= 0 or er > MAX_ER or f < 5000: continue
+        if plat not in PLAT or not u or not p.get('picture') or not f or er is None or er <= 0 or er > MAX_ER or f < min_f: continue
         if u.lower() in exclude or u.lower() in seen or off_niche(p.get('full_name') or '', niche): continue
         if drop and re.search(drop, (p.get('full_name') or '').lower()): continue
         seen.add(u.lower())
@@ -439,7 +495,9 @@ def render(w, f, rows, total, photos, old, live):
         cn = t.get('city_niche')
         by_city = [] if cn is False else [(f'/influencers/{slug_for(c, s, cn)}', f'{cn.capitalize() + " influencers" if cn else "Influencers"} in {c}')
                    for c, s, *_ in PRIORITY if slug_for(c, s, cn) in live][:6]
-        cols = ([(t.get('city_label', 'Creators by city'), by_city)] if by_city else []) + t['links']
+        lab = lambda x: (x.get('more_label') or x['crumb'])[:1].upper() + (x.get('more_label') or x['crumb'])[1:]
+        more = [(f'/influencers/{sl}', lab(TOPICS[sl])) for sl in TOPICS if sl != slug and sl in live][:4]
+        cols = ([(t.get('city_label', 'Creators by city'), by_city)] if by_city else []) + t['links'] + ([('More creator lists', more)] if more else [])
     col = lambda lab, ls: (f'<div class="jp-related-col"><div class="jp-label">{esc(lab)}</div>' + ''.join(f'<a href="{h}" class="jp-link">{esc(t)}</a>' for h, t in ls) + '</div>') if ls else ''
     related = '<div class="jp-related">' + ''.join(col(a, b) for a, b in cols) + '</div>'
     crumb_city = (f'<a href="{hub_url}" class="jp-crumb-link">{esc(city)}</a>' if hub_url and niche else
@@ -527,7 +585,7 @@ def render(w, f, rows, total, photos, old, live):
     ld = json.dumps(graph, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
     rt = lambda x: f'<div data-rt-embed-type="true">{x}</div>'
     scope = t['scope'] if t else f'tagged {niche} and based in the {city} area' if niche else f'based in the {city} area, in any niche'
-    method = (f'How this list was made: Jem Social creators {scope}, with at least 5,000 followers, sorted by engagement rate. '
+    method = (f'How this list was made: Jem Social creators {scope}, {t.get("fphrase", "with at least 5,000 followers") if t else "with at least 5,000 followers"}, sorted by engagement rate. '
               + ('Creators whose profile names point to a different niche are left out. ' if niche in NICHE_WORDS else '')
               + f'Engagement rates above {MAX_ER:g}% are left out as likely data errors. Data pulled from Jem Social on {pulled.strftime("%B")} {pulled.day}, {pulled.year}.')
     olds = [o for o in (t['old'] if t else [f'find-{niche}-influencers-in-{cs}', f'hire-{niche}-influencers-in-{cs}-{st.lower()}', f'hire-{niche}-influencers-in-{cs}']
@@ -567,7 +625,7 @@ def cmd_run():
         res = J.get(jkey(search_args(w)))
         if not res: rep['no_data'].append(w['slug']); continue
         rows = []
-        for r in candidates(res, exclude, w['niche'], (TOPICS.get(w['slug']) or {}).get('drop')):
+        for r in candidates(res, exclude, w['niche'], (TOPICS.get(w['slug']) or {}).get('drop'), search_args(w)['min_followers']):
             if len(rows) == SHOW: break
             if r['hs'] not in photos:
                 u = upload_photo(r)

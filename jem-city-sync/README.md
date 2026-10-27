@@ -1,8 +1,12 @@
 # Jem Social city pages: daily build
 
-`jem_sync.py` builds the data-backed city pages at jem.social/influencers/... (Webflow collection
-"City Influencer Pages"). It works down the priority list from the SEO plan: each city's hub page
-("{city} influencers") and food page ("{city} foodie") first, then fitness, beauty and fashion pages.
+`jem_sync.py` builds the data-backed pages at jem.social/influencers/... (Webflow collection
+"City Influencer Pages"). It builds pages in this order, with buyer searches first:
+
+1. National lists whose searches are mostly buyers (golf, fashion, micro, beauty, food, nano, travel).
+2. Every city's hub page ("{city} influencers").
+3. Food pages ("{city} foodie").
+4. Fitness, beauty and fashion pages.
 
 - **Webflow:** read and written directly through the Webflow API. The cloud environment's network secret
   adds the token; a `WEBFLOW_TOKEN` variable works too.
