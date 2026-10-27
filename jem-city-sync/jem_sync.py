@@ -57,7 +57,8 @@ NICHE_WORDS = {
  'other': r'money|financ|realtor|real estate|mortgage|insurance|attorney|lawyer'}
 
 # National pages built from one Jem search; they share the city template and get built before the next cities.
-# Copy placeholders: {N} creators shown, {total} Jem total, {M} "October 2026", {Mon} "Oct 2026".
+# Copy placeholders: {N} creators shown, {total} Jem total, {M} "October 2026", {Mon} "Oct 2026", {med} median engagement,
+# {top3} the top three creators by engagement. 'city_niche' adds links to the live city pages of that niche (None: city hubs).
 TOPICS = {
  'ugc-creators': {
   'search': {'niche': 'ugc', 'location': 'United States'}, 'niche': 'ugc', 'Label': 'UGC Creators', 'crumb': 'UGC creators',
@@ -82,6 +83,29 @@ TOPICS = {
             ('For UGC creators', [('/blog/how-to-become-a-ugc-creator', 'How to become a UGC creator'), ('/opportunities', 'Open brand opportunities'),
                                   ('/blog/ugc-jobs', 'UGC jobs'), ('/earn-money-as-a-ugc-creator', 'Earn money as a UGC creator')])],
   'old': ['find-ugc-creators', 'ugc-creator', 'ugc-content-creator']},
+ 'fitness': {
+  'search': {'niche': 'fitness', 'location': 'United States'}, 'niche': 'fitness', 'Label': 'Fitness Influencers', 'crumb': 'Fitness influencers',
+  'noun': 'fitness creators', 'who': 'US fitness creators', 'scope': 'tagged fitness and based in the US', 'city_niche': 'fitness',
+  'city_label': 'Fitness influencers by city',
+  'h1': 'Top {N} Fitness Influencers in the US ({M})', 'title': 'Top {N} Fitness Influencers in the US ({Mon}) | Jem Social',
+  'desc': "Browse {N} of Jem Social's {total} US fitness influencers with follower counts and engagement rates.",
+  'intro': 'Jem Social has {total} fitness creators in the US with at least 5,000 followers. Here are {N} of them, sorted by engagement rate.',
+  'micro': '7-day free trial, then $69/month. Search fitness creators by city, followers and engagement.',
+  'list': '{N} US fitness influencers', 'band': 'Reach fitness influencers directly', 'steps': 'How to run a fitness influencer campaign',
+  'faqs': [
+   ('Who are the top fitness influencers on Jem Social?', 'By engagement rate, the top three on this page are {top3}.', None),
+   ('How many fitness influencers are on Jem Social?', 'Jem Social lists {total} US creators tagged fitness with at least 5,000 followers as of {M}. This page shows {N} of them, sorted by engagement rate.', None),
+   ('What engagement rate do fitness influencers get?', 'The median engagement rate among the {N} creators on this page is {med}. Engagement varies with audience size, so compare creators in the same follower range.', None),
+   ('How much do fitness influencers charge?', "Rates depend on followers, platform and deliverables. The Influencer Rate Calculator gives a starting point, and each creator's rate estimate is in Jem Social.",
+    "Rates depend on followers, platform and deliverables. The <a href=\"/influencer-rate-calculator\" class=\"jp-inline-link\">Influencer Rate Calculator</a> gives a starting point, and each creator's rate estimate is in Jem Social."),
+   ('How do I find fitness influencers near me?', 'Search Jem Social by niche and city, or start with the city pages linked below.', None),
+   ('How do I contact these creators?', "Start a 7-day free trial to see each creator's email and audience data, then message them from Jem Social.", None),
+   ('How much does Jem Social cost?', 'Jem Social costs $69 per month after a 7-day free trial. One plan covers creator search in every city and niche, outreach and campaign management.', None)],
+  'links': [('More fitness lists', [('/famous-fitness-influencers', 'Famous fitness influencers'), ('/biggest-fitness-influencers', 'Biggest fitness influencers'),
+                                    ('/black-fitness-influencers', 'Black fitness influencers'), ('/most-successful-fitness-influencers-females', 'Most successful female fitness influencers')]),
+            ('Tools', [('/engagement-rate-calculator', 'Engagement rate calculator'), ('/influencer-rate-calculator', 'Influencer rate calculator'),
+                       ('/campaign-brief-generator', 'Campaign brief generator'), ('/creator-pages/how-to-pitch-brands-as-a-fitness-creator', 'For creators: pitch fitness brands')])],
+  'old': ['find-fitness-influencers', 'best-fitness-influencers', 'top-fitness-influencers']},
 }
 
 def slugify(s): return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
@@ -99,6 +123,10 @@ def clean_name(raw, handle):
     s = re.sub(r'^[^\w]+', '', s)                   # leading emoji: "💋Danielle💋"
     s = re.split(r'\s[|•·–—/-]\s|\s*[|•·]\s*|,|\s\(|\[', s)[0]
     s = re.split(r'[^\w\s.\'’“”"&+-]', s)[0]         # stop at the first emoji or symbol
+    if '-' in s:                                    # "Stephanie Rofkahr-Functional Health", not "Picolo-Ramos"
+        left, right = s.split('-', 1)
+        if ' ' in right.strip() and re.search(r'\b(?:' + '|'.join(NICHE_WORDS.values()) + r'|health|functional|wellness|' + '|'.join(ROLE) + ')', right.lower()):
+            s = left
     words = s.split()
     while len(words) > 1 and words[-1].lower().strip('.') in ROLE: words.pop()
     s = ' '.join(words).strip(" .-'")
@@ -377,8 +405,10 @@ def render(w, f, rows, total, photos, old, live):
     browse.append(('/engagement-rate-calculator', 'Engagement rate calculator'))
     cols.append(('Browse all', browse))
     if t:
-        hubs = [(f'/influencers/{slug_for(c, s, None)}', f'Influencers in {c}') for c, s, *_ in PRIORITY if slug_for(c, s, None) in live][:4]
-        cols = t['links'] + ([('Creators by city', hubs)] if hubs else [])
+        cn = t.get('city_niche')
+        by_city = [(f'/influencers/{slug_for(c, s, cn)}', f'{cn.capitalize() + " influencers" if cn else "Influencers"} in {c}')
+                   for c, s, *_ in PRIORITY if slug_for(c, s, cn) in live][:6]
+        cols = ([(t.get('city_label', 'Creators by city'), by_city)] if by_city else []) + t['links']
     col = lambda lab, ls: (f'<div class="jp-related-col"><div class="jp-label">{esc(lab)}</div>' + ''.join(f'<a href="{h}" class="jp-link">{esc(t)}</a>' for h, t in ls) + '</div>') if ls else ''
     related = '<div class="jp-related">' + ''.join(col(a, b) for a, b in cols) + '</div>'
     crumb_city = (f'<a href="{hub_url}" class="jp-crumb-link">{esc(city)}</a>' if hub_url and niche else
@@ -438,7 +468,8 @@ def render(w, f, rows, total, photos, old, live):
         intro = f'Jem Social has {total:,} {niche} creators in the {city} area with at least 5,000 followers. Here are {N} of them, sorted by engagement rate.'
         list_h, band_h, steps_h = f'{N} {city} {niche} creators', f'Reach {city} {niche} creators directly', f'How to run a {niche} campaign with {city} creators'
     if t:
-        fm = lambda x: x.format(N=N, M=M, Mon=Mon, total=f'{total:,}')
+        t3 = [f'{r["name"]} (@{r["u"]})' for r in rows[:3]]
+        fm = lambda x: x.format(N=N, M=M, Mon=Mon, total=f'{total:,}', med=fer(med), top3=', '.join(t3[:-1]) + ' and ' + t3[-1])
         h1, title, desc, intro = fm(t['h1']), fm(t['title']), fm(t['desc']), fm(t['intro'])
         list_h, band_h, steps_h = fm(t['list']), t['band'], t['steps']
         faqs = [(q, fm(a), fm(h) if h else None) for q, a, h in t['faqs']]
