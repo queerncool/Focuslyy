@@ -54,6 +54,7 @@ NICHE_WORDS = {
  'fitness': r'fit|gym|coach|trainer|workout|yoga|pilates|weight ?loss|athlet|run|lift|muscle',
  'beauty': r'beauty|makeup|mua|skin|nail|hair|lash|brow|esthetic|cosmetic|glam',
  'fashion': r'fashion|style|stylist|outfit|ootd|wear|wardrobe|boutique|lifestyle',
+ 'tech': r'tech|gadget|apps?\b|software|ai\b|gam(?:ing|er)|setup|desk|cod(?:e|ing)|develop|iphone|android|pc\b|computer|electronic',
  'other': r'money|financ|realtor|real estate|mortgage|insurance|attorney|lawyer'}
 
 # National pages built from one Jem search; they share the city template and get built before the next cities.
@@ -80,6 +81,7 @@ TOPICS = {
    ('How much does Jem Social cost?', 'For brands, Jem Social costs $69 per month after a 7-day free trial. For creators, pitching brands is free, or $20 per month for Premium.', None)],
   'links': [('UGC resources', [('/ugc-rate-card-generator', 'UGC rate card generator'), ('/free-ugc-contract-template', 'Free UGC contract template'),
                                ('/blog/what-is-ugc', 'What is UGC?'), ('/hire-tech-ugc-creators', 'Hire tech UGC creators')]),
+            ('UGC by niche', [('/influencers/tech-ugc-creators', 'Tech UGC creators')]),
             ('For UGC creators', [('/blog/how-to-become-a-ugc-creator', 'How to become a UGC creator'), ('/opportunities', 'Open brand opportunities'),
                                   ('/blog/ugc-jobs', 'UGC jobs'), ('/earn-money-as-a-ugc-creator', 'Earn money as a UGC creator')])],
   'old': ['find-ugc-creators', 'ugc-creator', 'ugc-content-creator']},
@@ -106,6 +108,30 @@ TOPICS = {
             ('Tools', [('/engagement-rate-calculator', 'Engagement rate calculator'), ('/influencer-rate-calculator', 'Influencer rate calculator'),
                        ('/campaign-brief-generator', 'Campaign brief generator'), ('/creator-pages/how-to-pitch-brands-as-a-fitness-creator', 'For creators: pitch fitness brands')])],
   'old': ['find-fitness-influencers', 'best-fitness-influencers', 'top-fitness-influencers']},
+ 'tech-ugc-creators': {
+  # Jem's tech tag also matches job titles like "Nail Tech", so those are dropped
+  'search': {'niche': 'tech', 'query': 'ugc', 'location': 'United States'}, 'niche': 'tech', 'Label': 'Tech UGC Creators', 'crumb': 'Tech',
+  'parent': ('/influencers/ugc-creators', 'UGC creators'), 'drop': r'\b(?:nail|lash|brow|vet|pharmacy|surgical|esthetic|hair|massage) tech',
+  'noun': 'tech UGC creators', 'who': 'US tech UGC creators', 'scope': 'tagged tech and based in the US, whose profiles mention UGC', 'city_niche': False,
+  'h1': 'Top {N} Tech UGC Creators to Hire ({M})', 'title': 'Top {N} Tech UGC Creators to Hire ({Mon}) | Jem Social',
+  'desc': "Browse {N} of Jem Social's {total} US tech UGC creators with follower counts and engagement rates.",
+  'intro': 'Jem Social has {total} US creators tagged tech whose profiles mention UGC, with at least 5,000 followers. Here are {N} of them, sorted by engagement rate.',
+  'micro': '7-day free trial, then $69/month. Search UGC creators by niche, city, followers and engagement.',
+  'list': '{N} tech UGC creators', 'band': 'Hire tech UGC creators for your app or product', 'steps': 'How to hire tech UGC creators',
+  'faqs': [
+   ('What is tech UGC?', 'Tech UGC is creator-made video and photo content for apps, software and gadgets, such as app walkthroughs, unboxings, '
+    'setup tours and first-impression reviews. Brands run it in their own ads and social channels.', None),
+   ('How many tech UGC creators are on Jem Social?', 'As of {M}, {total} US creators tagged tech mention UGC in their profiles and have at least 5,000 followers. This page shows {N} of them, sorted by engagement rate.', None),
+   ('How much do tech UGC creators charge?', "Rates depend on the deliverables, usage rights and the creator's experience. The UGC Rate Card Generator gives a starting point, and each creator's rate estimate is in Jem Social.",
+    "Rates depend on the deliverables, usage rights and the creator's experience. The <a href=\"/ugc-rate-card-generator\" class=\"jp-inline-link\">UGC Rate Card Generator</a> gives a starting point, and each creator's rate estimate is in Jem Social."),
+   ('How do I hire tech UGC creators for my app?', "Start a 7-day free trial to see each creator's email and audience data. Then message them and pay through Jem Social, with funds held until you approve the content.",
+    "Start a 7-day free trial to see each creator's email and audience data. Then message them and pay through Jem Social, with funds held until you approve the content. "
+    "<a href=\"/hire-tech-ugc-creators\" class=\"jp-inline-link\">See how app teams hire tech UGC creators</a>."),
+   ('How much does Jem Social cost?', 'For brands, Jem Social costs $69 per month after a 7-day free trial. For creators, pitching brands is free, or $20 per month for Premium.', None)],
+  'links': [('Tech UGC', [('/hire-tech-ugc-creators', 'Hire tech UGC creators for your app'), ('/use-cases/hire-tech-ugc-creators-and-influencers', 'UGC for apps and tech products'),
+                          ('/blog/tech-ugc', 'Tech UGC guide for creators'), ('/ugc-rate-card-generator', 'UGC rate card generator')]),
+            ('More UGC', [('/influencers/ugc-creators', 'All UGC creators'), ('/free-ugc-contract-template', 'Free UGC contract template'), ('/blog/what-is-ugc', 'What is UGC?')])],
+  'old': []},
 }
 
 def slugify(s): return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
@@ -219,6 +245,10 @@ def blocks(content):
         else: out.append(t)
     return out
 
+def jkey(q):
+    n = q.get('niche') or None
+    return (tuple(n) if isinstance(n, list) else n, q.get('location'), q.get('query') or None, q.get('min_followers'))
+
 def jem():
     path = os.environ.get('JEM_TRANSCRIPT') or max(glob.glob(os.path.expanduser('~/.claude/projects/*/*.jsonl')), key=os.path.getmtime)
     uses, res = {}, {}
@@ -235,7 +265,7 @@ def jem():
                 i = u.get('input', {})
                 for t in blocks(b.get('content')):
                     for r in iter_json(t):
-                        if isinstance(r, dict) and 'results' in r: res[(i.get('niche') or None, i.get('location'))] = r
+                        if isinstance(r, dict) and 'results' in r: res[jkey(i)] = r
     return res
 
 # ---------- formatting ----------
@@ -292,7 +322,7 @@ def off_niche(name, niche):
     if rx(niche): return False
     return any(rx(k) for k in NICHE_WORDS if k != niche)
 
-def candidates(res, exclude, niche):
+def candidates(res, exclude, niche, drop=None):
     rows, seen = [], set()
     for r in res.get('results') or []:
         p, plat = r.get('profile') or {}, (r.get('platform') or '').lower()
@@ -300,6 +330,7 @@ def candidates(res, exclude, niche):
         f, er = p.get('followers'), p.get('engagement_percent')
         if plat not in PLAT or not u or not p.get('picture') or not f or er is None or er <= 0 or er > MAX_ER or f < 5000: continue
         if u.lower() in exclude or u.lower() in seen or off_niche(p.get('full_name') or '', niche): continue
+        if drop and re.search(drop, (p.get('full_name') or '').lower()): continue
         seen.add(u.lower())
         rows.append({'u': u, 'hs': slugify(u), 'name': clean_name(p.get('full_name'), u), 'pic': p['picture'],
                      'f': int(f), 'er': float(er), 'plat': plat})
@@ -406,7 +437,7 @@ def render(w, f, rows, total, photos, old, live):
     cols.append(('Browse all', browse))
     if t:
         cn = t.get('city_niche')
-        by_city = [(f'/influencers/{slug_for(c, s, cn)}', f'{cn.capitalize() + " influencers" if cn else "Influencers"} in {c}')
+        by_city = [] if cn is False else [(f'/influencers/{slug_for(c, s, cn)}', f'{cn.capitalize() + " influencers" if cn else "Influencers"} in {c}')
                    for c, s, *_ in PRIORITY if slug_for(c, s, cn) in live][:6]
         cols = ([(t.get('city_label', 'Creators by city'), by_city)] if by_city else []) + t['links']
     col = lambda lab, ls: (f'<div class="jp-related-col"><div class="jp-label">{esc(lab)}</div>' + ''.join(f'<a href="{h}" class="jp-link">{esc(t)}</a>' for h, t in ls) + '</div>') if ls else ''
@@ -415,7 +446,10 @@ def render(w, f, rows, total, photos, old, live):
                   f'<span class="jp-crumb-{"link" if niche else "current"}">{esc(city)}</span>')
     crumbs = f'<div class="jp-crumbs"><a href="/" class="jp-crumb-link">Home</a><span class="jp-crumb-sep">/</span>{crumb_city}' + \
              (f'<span class="jp-crumb-sep">/</span><span class="jp-crumb-current">{esc(Niche)}</span>' if niche else '') + '</div>'
-    if t: crumbs = f'<div class="jp-crumbs"><a href="/" class="jp-crumb-link">Home</a><span class="jp-crumb-sep">/</span><span class="jp-crumb-current">{esc(t["crumb"])}</span></div>'
+    if t:
+        par = (f'<a href="{t["parent"][0]}" class="jp-crumb-link">{esc(t["parent"][1])}</a><span class="jp-crumb-sep">/</span>' if t.get('parent') else '')
+        crumbs = (f'<div class="jp-crumbs"><a href="/" class="jp-crumb-link">Home</a><span class="jp-crumb-sep">/</span>{par}'
+                  f'<span class="jp-crumb-current">{esc(t["crumb"])}</span></div>')
     glance = lambda num, lab, d='': f'<div class="jp-glance-item{d}"><div class="jp-glance-num">{num}</div><div class="jp-glance-label">{esc(lab)}</div></div>'
     micro = esc(t['micro']) if t else f'7-day free trial, then $69/month. Search creators in every city and niche, not just {esc(city)}.'
     stats = (f'<p class="jp-micro">{micro}</p><div class="jp-glance">'
@@ -481,6 +515,7 @@ def render(w, f, rows, total, photos, old, live):
                         'interactionStatistic': {'@type': 'InteractionCounter', 'interactionType': 'https://schema.org/FollowAction', 'userInteractionCount': r['f']}}
     crumbs_ld = [{'@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE + '/'}]
     if niche and hub_url: crumbs_ld.append({'@type': 'ListItem', 'position': 2, 'name': city, 'item': SITE + hub_url})
+    if t and t.get('parent'): crumbs_ld.append({'@type': 'ListItem', 'position': 2, 'name': t['parent'][1], 'item': SITE + t['parent'][0]})
     crumbs_ld.append({'@type': 'ListItem', 'position': len(crumbs_ld) + 1, 'name': Niche or city, 'item': url})
     graph = {'@context': 'https://schema.org', '@graph': [
         {'@type': 'WebPage', '@id': url + '#webpage', 'url': url, 'name': h1, 'description': desc, 'dateModified': pulled.isoformat(), 'inLanguage': 'en',
@@ -529,10 +564,10 @@ def cmd_run():
     live = {it['fieldData']['slug'] for it in items if not it['isDraft'] and it['fieldData'].get('creators-table')}
     rep = {'built': [], 'refreshed': [], 'unchanged': [], 'too_few': [], 'no_data': [], 'robots': [], 'uploaded': 0}
     for w in plan['work']:
-        q = search_args(w); res = J.get((q.get('niche'), q['location']))
+        res = J.get(jkey(search_args(w)))
         if not res: rep['no_data'].append(w['slug']); continue
         rows = []
-        for r in candidates(res, exclude, w['niche']):
+        for r in candidates(res, exclude, w['niche'], (TOPICS.get(w['slug']) or {}).get('drop')):
             if len(rows) == SHOW: break
             if r['hs'] not in photos:
                 u = upload_photo(r)
