@@ -40,11 +40,14 @@ PRIORITY = [
  ('Reno', 'NV', 39.53, -119.81), ('Durham', 'NC', 35.99, -78.90), ('Phoenix', 'AZ', 33.45, -112.07),
  ('Fort Lauderdale', 'FL', 26.12, -80.14), ('Richmond', 'VA', 37.54, -77.44), ('Madison', 'WI', 43.07, -89.40),
  ('Salt Lake City', 'UT', 40.76, -111.89), ('Detroit', 'MI', 42.33, -83.05), ('Santa Barbara', 'CA', 34.42, -119.70),
- ('St. Petersburg', 'FL', 27.77, -82.64), ('Honolulu', 'HI', 21.31, -157.86), ('Birmingham', 'AL', 33.52, -86.80),
+ ('Honolulu', 'HI', 21.31, -157.86), ('Birmingham', 'AL', 33.52, -86.80),
  ('Washington', 'DC', 38.91, -77.04), ('Columbus', 'OH', 39.96, -83.00), ('Myrtle Beach', 'SC', 33.69, -78.89),
  ('Milwaukee', 'WI', 43.04, -87.91), ('Jacksonville', 'FL', 30.33, -81.66), ('Palm Springs', 'CA', 33.83, -116.55),
  ('Oakland', 'CA', 37.80, -122.27), ('Boulder', 'CO', 40.01, -105.27), ('Ann Arbor', 'MI', 42.28, -83.74),
  ('Sarasota', 'FL', 27.34, -82.53), ('Raleigh', 'NC', 35.78, -78.64), ('Bakersfield', 'CA', 35.37, -119.02)]
+# St. Petersburg, FL is left out: Jem Social has no St. Petersburg location, so its search always fails (Nov 2026).
+# Jem Social's name for a city when "City, ST" doesn't match one of its locations.
+LOCATION = {('Washington', 'DC'): 'District of Columbia, United States'}
 COORD = {(c, s): (la, lo) for c, s, la, lo in PRIORITY}
 PASSES = [(None,), ('food',), ('fitness', 'beauty', 'fashion')]   # every city hub first (buyer searches), then food, then niches
 NICHES = ['food', 'fitness', 'beauty', 'fashion']
@@ -213,7 +216,7 @@ def slugify(s): return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
 def esc(s): return html.escape(str(s), quote=True)
 def slug_for(city, st, niche): return f'{slugify(city)}-{st.lower()}' if not niche else f'{niche}-influencers-in-{slugify(city)}-{st.lower()}'
 def page_url(slug): return f'{SITE}/influencers/{slug}'
-def signup(slug): return f'{SIGNUP}?utm_source=seo&amp;utm_medium=city-page&amp;utm_campaign={slug}'
+def signup(slug): return f'{SIGNUP}?plan=price_1RH6oxB5nBZIUygBaJwlEgXP&amp;source=seo_city&amp;utm_source=seo&amp;utm_medium=city-page&amp;utm_campaign={slug}'   # brand free trial (Bree, Oct 27)
 ROLE = {'creator', 'coach', 'trainer', 'influencer', 'blogger', 'vlogger', 'model', 'official', 'fitness', 'lifestyle', 'beauty',
         'fashion', 'food', 'foodie', 'travel', 'pro', 'aging', 'community', 'ugc', 'content', 'personal', 'mua', 'stylist', 'chef',
         'photographer', 'photography', 'photo', 'llc'}
@@ -387,7 +390,7 @@ def cmd_plan():
 
 def search_args(w):
     t = TOPICS.get(w['slug'])
-    q = dict(t['search']) if t else {'location': f"{w['city']}, {w['st']}"}
+    q = dict(t['search']) if t else {'location': LOCATION.get((w['city'], w['st']), f"{w['city']}, {w['st']}")}
     if w['niche'] and not t: q = {'niche': w['niche'], **q}
     return {'min_followers': 5000, **q, 'limit': 25}
 
