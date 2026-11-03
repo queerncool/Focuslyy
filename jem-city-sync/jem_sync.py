@@ -137,7 +137,7 @@ TOPICS = {
 TOOLS = [('/engagement-rate-calculator', 'Engagement rate calculator'), ('/influencer-rate-calculator', 'Influencer rate calculator'),
          ('/campaign-brief-generator', 'Campaign brief generator')]
 
-def national(slug, label, lbl, noun, search, scope, fphrase='with at least 5,000 followers', city_niche=False, define=None, extra=(), old=None):
+def national(slug, label, lbl, noun, search, scope, fphrase='with at least 5,000 followers', city_niche=False, define=None, extra=(), old=None, drop=None):
     """A US-wide list like /influencers/tiktok. label 'TikTok Influencers', lbl 'TikTok influencers', noun 'TikTok creators'."""
     base = slug
     faqs = [(f'Who are the top {lbl} on Jem Social?', 'By engagement rate, the top three on this page are {top3}.', None),
@@ -157,7 +157,8 @@ def national(slug, label, lbl, noun, search, scope, fphrase='with at least 5,000
         'micro': '7-day free trial, then $69/month. Search creators by niche, city, followers and engagement.',
         'list': f'{{N}} US {lbl}', 'band': f'Reach {lbl} directly', 'steps': f'How to run a campaign with {lbl}',
         'faqs': faqs, 'links': ([('Related pages', list(extra))] if extra else []) + [('Tools', TOOLS)],
-        'old': old if old is not None else [f'find-{base}-influencers', f'best-{base}-influencers', f'top-{base}-influencers', f'{base}-influencers']}
+        'old': old if old is not None else [f'find-{base}-influencers', f'best-{base}-influencers', f'top-{base}-influencers', f'{base}-influencers'],
+        **({'drop': drop} if drop else {})}
 
 US = 'United States'
 # Searches DataForSEO rates mostly commercial (buyers), highest US volume first. TikTok, Instagram and YouTube
@@ -185,6 +186,25 @@ NATIONAL = [
           extra=[('/influencers/micro', 'Micro influencers (10K to 100K)')], old=['find-nano-influencers', 'best-nano-influencers', 'top-nano-influencers', 'nano-influencers']),
  national('travel', 'Travel Influencers', 'travel influencers', 'travel creators', {'niche': 'travel', 'location': US}, 'tagged travel and based in the US',
           extra=[('/top-travel-influencers', 'Top travel influencers'), ('/creator-pages/how-to-pitch-brands-as-a-travel-creator', 'For creators: pitch travel brands')]),
+ # Added Nov 3, 2026: lists that replace old /find-influencers/ topic pages with real search demand (US searches/mo in brackets).
+ national('lifestyle', 'Lifestyle Influencers', 'lifestyle influencers', 'lifestyle creators', {'niche': 'lifestyle', 'location': US}, 'tagged lifestyle and based in the US',   # 1,000
+          extra=[('/influencers/fashion', 'Fashion influencers'), ('/influencers/beauty', 'Beauty influencers'), ('/influencers/travel', 'Travel influencers')]),
+ national('wellness', 'Wellness Influencers', 'wellness influencers', 'wellness creators', {'niche': 'wellness', 'location': US}, 'tagged wellness and based in the US',   # 880
+          extra=[('/influencers/fitness', 'Fitness influencers'), ('/influencers/food', 'Food influencers'), ('/influencers/beauty', 'Beauty influencers')]),
+ national('mom', 'Mom Influencers', 'mom influencers', 'mom creators', {'niche': 'mom', 'location': US}, 'tagged mom and based in the US',   # 590
+          extra=[('/influencers/food', 'Food influencers'), ('/influencers/fitness', 'Fitness influencers'), ('/influencers/micro', 'Micro influencers')]),
+ national('tech', 'Tech Influencers', 'tech influencers', 'tech creators', {'niche': 'tech', 'location': US}, 'tagged tech and based in the US',   # 390
+          drop=r'\b(?:nail|lash|brow|vet|pharmacy|surgical|esthetic|hair|massage) tech',
+          extra=[('/influencers/tech-ugc-creators', 'Tech UGC creators'), ('/influencers/ugc-creators', 'UGC creators')]),
+ national('cooking', 'Cooking Influencers', 'cooking influencers', 'cooking creators', {'niche': 'cooking', 'location': US}, 'tagged cooking and based in the US',   # 320
+          extra=[('/influencers/food', 'Food influencers'), ('/influencers/wellness', 'Wellness influencers')]),
+ national('music', 'Music Influencers', 'music influencers', 'music creators', {'niche': 'music', 'location': US}, 'tagged music and based in the US'),   # 260
+ national('male-fashion', 'Male Fashion Influencers', 'male fashion influencers', 'menswear creators', {'niche': 'fashion', 'query': 'menswear', 'location': US},   # 260
+          'tagged fashion and based in the US, whose profiles mention menswear',
+          define=('What is a male fashion influencer?', 'On this page, a male fashion influencer is a US fashion creator whose profile mentions menswear.', None),
+          extra=[('/influencers/fashion', 'All fashion influencers'), ('/influencers/fitness', 'Fitness influencers')]),
+ national('outdoor', 'Outdoor Influencers', 'outdoor influencers', 'outdoor creators', {'niche': 'outdoor', 'location': US}, 'tagged outdoor and based in the US',   # 210
+          extra=[('/influencers/travel', 'Travel influencers'), ('/influencers/fitness', 'Fitness influencers'), ('/influencers/golf', 'Golf influencers')]),
 ]
 
 TOPICS.update(dict(NATIONAL))
