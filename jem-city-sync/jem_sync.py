@@ -197,15 +197,17 @@ NATIONAL = [
  national('mom', 'Mom Influencers', 'mom influencers', 'mom creators', {'niche': 'mom', 'location': US}, 'tagged mom and based in the US',   # 590
           extra=[('/influencers/food', 'Food influencers'), ('/influencers/fitness', 'Fitness influencers'), ('/influencers/micro', 'Micro influencers')]),
  national('tech', 'Tech Influencers', 'tech influencers', 'tech creators', {'niche': 'tech', 'location': US}, 'tagged tech and based in the US',   # 390
-          drop=r'\b(?:nail|lash|brow|vet|pharmacy|surgical|esthetic|hair|massage) tech',
+          drop=r'\b(?:nail|lash|brow|vet|pharmacy|surgical|esthetic|hair|massage) tech|\b(?:virginia|georgia|texas|louisiana|tennessee) tech\b',   # job titles, college teams
           extra=[('/influencers/tech-ugc-creators', 'Tech UGC creators'), ('/influencers/ugc-creators', 'UGC creators')]),
  national('cooking', 'Cooking Influencers', 'cooking influencers', 'cooking creators', {'niche': 'cooking', 'location': US}, 'tagged cooking and based in the US',   # 320
           extra=[('/influencers/food', 'Food influencers'), ('/influencers/wellness', 'Wellness influencers')]),
  national('music', 'Music Influencers', 'music influencers', 'music creators', {'niche': 'music', 'location': US}, 'tagged music and based in the US'),   # 260
- national('male-fashion', 'Male Fashion Influencers', 'male fashion influencers', 'menswear creators', {'niche': 'fashion', 'query': 'menswear', 'location': US},   # 260
+ # "male fashion influencers" (260): Jem has no gender field, and the menswear search includes women who style menswear, so the page says menswear
+ national('menswear', 'Menswear Influencers', 'menswear influencers', 'menswear creators', {'niche': 'fashion', 'query': 'menswear', 'location': US},
           'tagged fashion and based in the US, whose profiles mention menswear',
-          define=('What is a male fashion influencer?', 'On this page, a male fashion influencer is a US fashion creator whose profile mentions menswear.', None),
-          extra=[('/influencers/fashion', 'All fashion influencers'), ('/influencers/fitness', 'Fitness influencers')]),
+          define=('What is a menswear influencer?', 'On this page, a menswear influencer is a US fashion creator whose profile mentions menswear.', None),
+          extra=[('/influencers/fashion', 'All fashion influencers'), ('/influencers/fitness', 'Fitness influencers')],
+          old=['male-fashion-influencers', 'find-male-fashion-influencers', 'top-male-fashion-influencers', 'find-menswear-influencers', 'menswear-influencers']),
  national('outdoor', 'Outdoor Influencers', 'outdoor influencers', 'outdoor creators', {'niche': 'outdoor', 'location': US}, 'tagged outdoor and based in the US',   # 210
           extra=[('/influencers/travel', 'Travel influencers'), ('/influencers/fitness', 'Fitness influencers'), ('/influencers/golf', 'Golf influencers')]),
 ]
