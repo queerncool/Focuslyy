@@ -84,7 +84,7 @@ TOPICS = {
    ('How much does Jem Social cost?', 'For brands, Jem Social costs $69 per month after a 7-day free trial. For creators, pitching brands is free, or $20 per month for Premium.', None)],
   'links': [('UGC resources', [('/ugc-rate-card-generator', 'UGC rate card generator'), ('/free-ugc-contract-template', 'Free UGC contract template'),
                                ('/blog/what-is-ugc', 'What is UGC?'), ('/hire-tech-ugc-creators', 'Hire tech UGC creators')]),
-            ('UGC by niche', [('/influencers/tech-ugc-creators', 'Tech UGC creators')]),
+            ('UGC by niche', [('/influencers/tech-ugc-creators', 'Tech UGC creators'), ('/influencers/pet-ugc-creators', 'Pet UGC creators')]),
             ('For UGC creators', [('/blog/how-to-become-a-ugc-creator', 'How to become a UGC creator'), ('/opportunities', 'Open brand opportunities'),
                                   ('/blog/ugc-jobs', 'UGC jobs'), ('/earn-money-as-a-ugc-creator', 'Earn money as a UGC creator')])],
   'old': ['find-ugc-creators', 'ugc-creator', 'ugc-content-creator']},
@@ -134,6 +134,27 @@ TOPICS = {
   'links': [('Tech UGC', [('/hire-tech-ugc-creators', 'Hire tech UGC creators for your app'), ('/use-cases/hire-tech-ugc-creators-and-influencers', 'UGC for apps and tech products'),
                           ('/blog/tech-ugc', 'Tech UGC guide for creators'), ('/ugc-rate-card-generator', 'UGC rate card generator')]),
             ('More UGC', [('/influencers/ugc-creators', 'All UGC creators'), ('/free-ugc-contract-template', 'Free UGC contract template'), ('/blog/what-is-ugc', 'What is UGC?')])],
+  'old': []},
+ 'pet-ugc-creators': {
+  # "pet ugc creators": 110 US searches/mo (Nov 2026). Replaces the 50 old find-pets-ugc-creators-in-{city} pages (one wildcard redirect).
+  'search': {'niche': 'pets', 'query': 'ugc', 'location': 'United States'}, 'niche': 'pets', 'Label': 'Pet UGC Creators', 'crumb': 'Pets', 'more_label': 'Pet UGC creators',
+  'parent': ('/influencers/ugc-creators', 'UGC creators'),
+  'noun': 'pet UGC creators', 'who': 'US pet UGC creators', 'scope': 'tagged pets and based in the US, whose profiles mention UGC', 'city_niche': False,
+  'h1': 'Top {N} Pet UGC Creators to Hire ({M})', 'title': 'Top {N} Pet UGC Creators to Hire ({Mon}) | Jem Social',
+  'desc': "Browse {N} of Jem Social's {total} US pet UGC creators with follower counts and engagement rates.",
+  'intro': 'Jem Social has {total} US creators tagged pets whose profiles mention UGC, with at least 5,000 followers. Here are {N} of them, sorted by engagement rate.',
+  'micro': '7-day free trial, then $69/month. Search UGC creators by niche, city, followers and engagement.',
+  'list': '{N} pet UGC creators', 'band': 'Hire pet UGC creators for your pet brand', 'steps': 'How to hire pet UGC creators',
+  'faqs': [
+   ('What is pet UGC?', "Pet UGC is creator-made photo and video content for pet brands, such as product reviews, unboxings, feeding and grooming routines, "
+    "and everyday clips with the creator's own pets. Brands run it in their own ads and social channels.", None),
+   ('How many pet UGC creators are on Jem Social?', 'As of {M}, {total} US creators tagged pets mention UGC in their profiles and have at least 5,000 followers. This page shows {N} of them, sorted by engagement rate.', None),
+   ('How much do pet UGC creators charge?', "Rates depend on the deliverables, usage rights and the creator's experience. The UGC Rate Card Generator gives a starting point, and each creator's rate estimate is in Jem Social.",
+    "Rates depend on the deliverables, usage rights and the creator's experience. The <a href=\"/ugc-rate-card-generator\" class=\"jp-inline-link\">UGC Rate Card Generator</a> gives a starting point, and each creator's rate estimate is in Jem Social."),
+   ('How do I hire pet UGC creators?', "Start a 7-day free trial to see each creator's email and audience data. Then message them and pay through Jem Social, with funds held until you approve the content.", None),
+   ('How much does Jem Social cost?', 'For brands, Jem Social costs $69 per month after a 7-day free trial. For creators, pitching brands is free, or $20 per month for Premium.', None)],
+  'links': [('More UGC', [('/influencers/ugc-creators', 'All UGC creators'), ('/influencers/tech-ugc-creators', 'Tech UGC creators'), ('/ugc-rate-card-generator', 'UGC rate card generator'),
+                          ('/free-ugc-contract-template', 'Free UGC contract template'), ('/blog/what-is-ugc', 'What is UGC?')])],
   'old': []},
 }
 
