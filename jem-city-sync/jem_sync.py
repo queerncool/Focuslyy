@@ -143,7 +143,7 @@ TOPICS = {
 TOOLS = [('/engagement-rate-calculator', 'Engagement rate calculator'), ('/influencer-rate-calculator', 'Influencer rate calculator'),
          ('/campaign-brief-generator', 'Campaign brief generator')]
 
-def national(slug, label, lbl, noun, search, scope, fphrase='with at least 5,000 followers', city_niche=False, define=None, extra=(), old=None, drop=None):
+def national(slug, label, lbl, noun, search, scope, fphrase='with at least 5,000 followers', city_niche=False, define=None, extra=(), old=None, drop=None, niche_label=None):
     """A US-wide list like /influencers/tiktok. label 'TikTok Influencers', lbl 'TikTok influencers', noun 'TikTok creators'."""
     base = slug
     faqs = [(f'Who are the top {lbl} on Jem Social?', 'By engagement rate, the top three on this page are {top3}.', None),
@@ -164,7 +164,7 @@ def national(slug, label, lbl, noun, search, scope, fphrase='with at least 5,000
         'list': f'{{N}} US {lbl}', 'band': f'Reach {lbl} directly', 'steps': f'How to run a campaign with {lbl}',
         'faqs': faqs, 'links': ([('Related pages', list(extra))] if extra else []) + [('Tools', TOOLS)],
         'old': old if old is not None else [f'find-{base}-influencers', f'best-{base}-influencers', f'top-{base}-influencers', f'{base}-influencers'],
-        **({'drop': drop} if drop else {})}
+        **({'drop': drop} if drop else {}), **({'niche_label': niche_label} if niche_label else {})}
 
 US = 'United States'
 # Searches DataForSEO rates mostly commercial (buyers), highest US volume first. TikTok, Instagram and YouTube
@@ -219,6 +219,17 @@ NATIONAL = [
           extra=[('/influencers/ugc-creators', 'UGC creators'), ('/influencers/outdoor', 'Outdoor influencers'), ('/influencers/mom', 'Mom influencers')],
           old=['pet-influencers', 'find-pet-influencers', 'top-pet-influencers', 'best-pet-influencers', 'dog-influencers', 'find-dog-influencers',
                'top-dog-influencers', 'find-pets-influencers']),
+ # "tiktok influencers" 6,600 US searches/mo. Jem's TikTok platform filter returns TikTok creators; its Instagram and YouTube
+ # filters return wrong totals (Nov 2026), so there are no Instagram or YouTube lists yet.
+ national('tiktok', 'TikTok Influencers', 'TikTok influencers', 'TikTok creators', {'platform': 'tiktok', 'location': US},
+          'whose main platform is TikTok, based in the US', niche_label='TikTok',
+          extra=[('/influencers/ugc-creators', 'UGC creators'), ('/influencers/micro', 'Micro influencers'), ('/influencers/fitness', 'Fitness influencers')]),
+ # "amazon influencers" 18,100 US searches/mo. Jem's keyword search is fuzzy, so the page says "matched to Amazon", not "mention".
+ national('amazon', 'Amazon Influencers', 'Amazon influencers', 'creators matched to Amazon', {'query': 'amazon', 'location': US},
+          "matched to Amazon by Jem Social's keyword search and based in the US", niche_label='Amazon',
+          define=('What is an Amazon influencer?', 'Usually a creator in the Amazon Influencer Program, with an Amazon storefront that earns commission on the '
+                  "products they recommend. This page lists creators that Jem Social's keyword search matches to Amazon.", None),
+          extra=[('/influencers/lifestyle', 'Lifestyle influencers'), ('/influencers/mom', 'Mom influencers'), ('/influencers/fashion', 'Fashion influencers')]),
 ]
 
 TOPICS.update(dict(NATIONAL))
@@ -662,7 +673,7 @@ def render(w, f, rows, total, photos, old, live):
         'old-urls': ', '.join(f'/find-influencers/{o}' for o in olds),
         'breadcrumb': rt(crumbs), 'hero-stats': rt(stats), 'creators-table': rt(table), 'insights': rt(insights),
         'faq': rt(faq), 'related-links': rt(related), 'schema-markup': rt(f'<script type="application/ld+json">{ld}</script>')}
-    if t: out.update({'name': t['Label'], 'niche-label': t['niche'].upper() if len(t['niche']) <= 3 else t['niche'].capitalize()})
+    if t: out.update({'name': t['Label'], 'niche-label': t.get('niche_label') or (t['niche'].upper() if len(t['niche']) <= 3 else t['niche'].capitalize())})
     return out
 
 # ---------- run ----------
