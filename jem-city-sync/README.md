@@ -49,12 +49,18 @@
 
 ## Updating the scheduled task
 
-The scheduled task ("Jem city pages daily build") doesn't run this repo copy. A copy of the script is
-embedded at the end of the task's prompt, between `#BEGIN-JEM-SYNC` and `#END-JEM-SYNC`. Setup step 1
-unpacks it from the session transcript and checks its MD5. Don't have the task download the script:
-the run's safety check blocks running code fetched from a URL ("Code from External"), and that
-stopped the Oct 27 run. After changing `jem_sync.py`:
+The scheduled task ("Jem city pages daily build") doesn't run this repo copy, and it doesn't download anything:
+the run's safety check blocks code fetched from a URL ("Code from External"), which stopped the Oct 27 run.
+Instead, `jem_sync_task.py` is embedded at the end of the task's prompt, between `#BEGIN-JEM-SYNC` and
+`#END-JEM-SYNC`, and setup step 1 unpacks it and checks its MD5.
 
-1. Replace the embedded copy in the task's prompt with the new file, without its trailing newline.
-2. Put the new file's MD5 (`md5sum jem_sync.py`) in setup step 1.
-3. Read the task back and check that the embedded copy's MD5 matches.
+`jem_sync_task.py` is generated: `python3 make_task_copy.py` strips comments, docstrings and the in-session-only
+commands (`approve`, `relink`, marked in `jem_sync.py`). Task prompts are limited to 64 KB (65,536 bytes); the
+Nov 5 prompt is 64,627 bytes, so about 900 bytes are left. After changing `jem_sync.py`:
+
+1. Run `python3 make_task_copy.py`. It prints the size and MD5.
+2. Replace the embedded copy in the task's prompt with `jem_sync_task.py`, without its trailing newline, and put
+   the new MD5 in setup step 1.
+3. Read the task back and check that the embedded copy matches `jem_sync_task.py` byte for byte.
+
+If a change doesn't fit, split the work: for example, move the national lists to a second scheduled task.

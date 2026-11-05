@@ -746,6 +746,7 @@ def cmd_run():
     for k in ('built', 'refreshed', 'too_few', 'no_data', 'robots'):
         if rep[k]: print(f'{k}: ' + ', '.join(rep[k]))
 
+# >>> in-session only (left out of the scheduled task's copy, see make_task_copy.py)
 def cmd_approve(slugs):
     items = {it['fieldData']['slug']: it for it in list_items(COLL)}
     pub = []
@@ -776,6 +777,8 @@ def cmd_relink(dry=False):
         if not dry: wf('PATCH', f'/collections/{COLL}/items/{it["id"]}', {'fieldData': {'related-links': out}})
     if not dry: publish(pub)
     print(f'{"would update" if dry else "updated"} {len(pub)} city pages')
+
+# <<< in-session only
 
 def cmd_report():
     r = load('report.json'); s = lambda k: ', '.join(r[k][:12]) or 'none'
