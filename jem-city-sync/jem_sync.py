@@ -6,9 +6,10 @@ calls made in this Claude session; the script reads their results from the sessi
   plan               picks today's pages from the priority list plus stale refreshes, prints the Jem searches
   run                reads the Jem results, uploads photos, writes and publishes pages, syncs robots for approved pages
   approve SLUG...    switches pages to approved, indexes those with 10+ creators, publishes them
+  relink [--dry]     rewrites the "Browse all" links on live city pages (US list for the niche, UGC creators) and publishes them
   report             one-paragraph summary for Telegram
 """
-import json, os, re, sys, glob, html, hashlib, statistics, subprocess, datetime, io, time, math, urllib.request, urllib.error, unicodedata
+import json, os, re, sys, glob, html, hashlib, statistics, subprocess, datetime, io, time, math, urllib.request, urllib.error, unicodedata, base64
 W = os.path.expanduser('~/jem-sync'); os.makedirs(W, exist_ok=True)
 SITE_ID, COLL, OLD_COLL = '67b0d09acc5bda1c5c04566f', '6adc28d2f2806b611dd3a207', '69dae1304d0242f517edcc12'
 SITE, CDN, API = 'https://www.jem.social', 'https://cdn.prod.website-files.com/', 'https://api.webflow.com/v2'
@@ -16,6 +17,8 @@ SIGNUP = 'https://app.jem.social/signup'
 MAX_NEW, MAX_REFRESH = int(os.environ.get('MAX_NEW', 10)), int(os.environ.get('MAX_REFRESH', 4))
 REFRESH_DAYS, SKIP_DAYS = int(os.environ.get('REFRESH_DAYS', 27)), 60
 SHOW, MIN_BUILD, MIN_INDEX = 20, 5, 10
+# Follower bands for the size breakdown on pages with 'tiers' (counts are Jem totals for the whole niche, not just the creators shown).
+TIERS = [(5000, 9999, '5K–10K'), (10000, 99999, '10K–100K'), (100000, 999999, '100K–1M'), (1000000, None, '1M or more')]
 MAX_ER = 20.0     # engagement above this is treated as a data error and left out
 FPV = 'v3:'       # bump when page rules change; older pages get re-rendered as refreshes
 PLAT = {'instagram': ('Instagram', 'https://www.instagram.com/{}/'), 'tiktok': ('TikTok', 'https://www.tiktok.com/@{}'),
@@ -87,7 +90,7 @@ TOPICS = {
             ('UGC by niche', [('/influencers/tech-ugc-creators', 'Tech UGC creators')]),
             ('For UGC creators', [('/blog/how-to-become-a-ugc-creator', 'How to become a UGC creator'), ('/opportunities', 'Open brand opportunities'),
                                   ('/blog/ugc-jobs', 'UGC jobs'), ('/earn-money-as-a-ugc-creator', 'Earn money as a UGC creator')])],
-  'old': ['find-ugc-creators', 'ugc-creator', 'ugc-content-creator']},
+  'old': ['find-ugc-creators', 'ugc-creator', 'ugc-content-creator'], 'show': 50, 'pages': 2, 'tiers': True},
  'fitness': {
   'search': {'niche': 'fitness', 'location': 'United States'}, 'niche': 'fitness', 'Label': 'Fitness Influencers', 'crumb': 'Fitness influencers',
   'noun': 'fitness creators', 'who': 'US fitness creators', 'scope': 'tagged fitness and based in the US', 'city_niche': 'fitness',
@@ -110,7 +113,7 @@ TOPICS = {
                                     ('/black-fitness-influencers', 'Black fitness influencers'), ('/most-successful-fitness-influencers-females', 'Most successful female fitness influencers')]),
             ('Tools', [('/engagement-rate-calculator', 'Engagement rate calculator'), ('/influencer-rate-calculator', 'Influencer rate calculator'),
                        ('/campaign-brief-generator', 'Campaign brief generator'), ('/creator-pages/how-to-pitch-brands-as-a-fitness-creator', 'For creators: pitch fitness brands')])],
-  'old': ['find-fitness-influencers', 'best-fitness-influencers', 'top-fitness-influencers']},
+  'old': ['find-fitness-influencers', 'best-fitness-influencers', 'top-fitness-influencers'], 'show': 50, 'pages': 2, 'tiers': True},
  'tech-ugc-creators': {
   # Jem's tech tag also matches job titles like "Nail Tech", so those are dropped
   'search': {'niche': 'tech', 'query': 'ugc', 'location': 'United States'}, 'niche': 'tech', 'Label': 'Tech UGC Creators', 'crumb': 'Tech', 'more_label': 'Tech UGC creators',
@@ -334,7 +337,7 @@ def blocks(content):
 def jkey(q):
     n = q.get('niche') or None
     return (tuple(n) if isinstance(n, list) else n, q.get('location'), q.get('query') or None, q.get('platform') or None,
-            q.get('min_followers'), q.get('max_followers'))
+            q.get('min_followers'), q.get('max_followers'), q.get('cursor') or None)
 
 def jem():
     path = os.environ.get('JEM_TRANSCRIPT') or max(glob.glob(os.path.expanduser('~/.claude/projects/*/*.jsonl')), key=os.path.getmtime)
@@ -391,10 +394,26 @@ def cmd_plan():
     stale = [it for it in live if age(it) >= REFRESH_DAYS or not (it['fieldData'].get('data-fingerprint') or '').startswith(FPV)]
     for it in sorted(stale, key=age, reverse=True)[:MAX_REFRESH]:
         f = it['fieldData']; add(f.get('city') or '', f.get('state') or '', f.get('niche') or None, it, False, f['slug'])
+    for sl in [x.strip() for x in os.environ.get('FORCE', '').split(',') if x.strip()]:   # FORCE=ugc-creators,fitness refreshes these now
+        it = by.get(sl)
+        if it and sl not in {w['slug'] for w in work}:
+            f = it['fieldData']; add(f.get('city') or '', f.get('state') or '', f.get('niche') or None, it, False, sl)
     save('plan.json', {'work': work, 'date': today.isoformat()})
     print(f'{sum(w["new"] for w in work)} new + {sum(not w["new"] for w in work)} refresh pages ({len(items)} items in the collection).')
     print('\nsearch_influencers calls, one per line; use exactly these arguments:')
-    for w in work: print(json.dumps(search_args(w)))
+    for w in work:
+        for q in search_list(w): print(json.dumps(q))
+
+def cursor(offset): return base64.b64encode(json.dumps({'offset': offset}, separators=(',', ':')).encode()).decode()
+
+def tier_args(w):
+    base = {k: v for k, v in search_args(w).items() if k not in ('limit', 'min_followers', 'max_followers')}
+    return [{**base, 'min_followers': lo, **({'max_followers': hi} if hi else {}), 'limit': 1} for lo, hi, _ in TIERS]
+
+def search_list(w):
+    # every search a page needs: result pages (25 creators each), then one count per follower band
+    t, q = TOPICS.get(w['slug']) or {}, search_args(w)
+    return [q] + [{**q, 'cursor': cursor(25 * p)} for p in range(1, t.get('pages', 1))] + (tier_args(w) if t.get('tiers') else [])
 
 def search_args(w):
     t = TOPICS.get(w['slug'])
@@ -462,6 +481,14 @@ def upload_photo(r):
         print(f'  photo failed for @{r["u"]}: {e}'); return None
 
 # ---------- render ----------
+def browse_links(niche, old, live):
+    # city pages: the US-wide list for the page's niche, the UGC creators list, then the calculator
+    out = []
+    if niche and niche in live: out.append((f'/influencers/{niche}', f'All US {niche} influencers'))
+    elif niche and f'find-{niche}-influencers' in old: out.append((f'/find-influencers/find-{niche}-influencers', f'All {niche} influencers'))
+    if 'ugc-creators' in live: out.append(('/influencers/ugc-creators', 'Hire UGC creators'))
+    return out + [('/engagement-rate-calculator', 'Engagement rate calculator')]
+
 def render(w, f, rows, total, photos, old, live):
     city, st, niche = w['city'], w['st'], w['niche']
     Niche = niche.capitalize() if niche else ''
@@ -491,7 +518,7 @@ def render(w, f, rows, total, photos, old, live):
     table = ('<div class="jp-table"><div class="jp-row jp-row-head"><div class="jp-th">#</div><div class="jp-th">Creator</div><div class="jp-th">Platform</div>'
              '<div class="jp-th jp-th-right">Followers</div><div class="jp-th jp-th-right">Engagement</div><div class="jp-th jp-th-right">Contact</div></div>'
              f'<div class="jp-rows">{trs}<a class="jp-more" href="{su}">{more_html}</a></div></div>')
-    fp = FPV + hashlib.md5(json.dumps([total, [(r['u'], r['f'], round(r['er'], 2), r['plat']) for r in rows]]).encode()).hexdigest()
+    fp = FPV + hashlib.md5(json.dumps([total, [(r['u'], r['f'], round(r['er'], 2), r['plat']) for r in rows]] + ([w['tiers']] if w.get('tiers') else [])).encode()).hexdigest()
     pulled = (datetime.date.fromisoformat(f['data-updated'][:10]) if f.get('data-fingerprint') == fp and f.get('data-updated') else datetime.date.today())
     M, Mon = pulled.strftime('%B %Y'), pulled.strftime('%b %Y')
     # links: new pages that are live (or being built in this run) first, older /find-influencers/ pages as a fallback
@@ -514,14 +541,11 @@ def render(w, f, rows, total, photos, old, live):
     if niche:
         other = ([(hub_url, f'All {city} influencers')] if hub_url else []) + \
                 [(h, f'{m.capitalize()} influencers in {city}') for m in NICHES if m != niche for h in [new_or_old(m, city, st)] if h]
-        browse = [(f'/find-influencers/find-{niche}-influencers', f'All {niche} influencers')] if f'find-{niche}-influencers' in old else []
         cols = [(f'{Niche} near {city}', near[:3]), (f'More in {city}', other[:4])]
     else:
         other = [(h, f'{m.capitalize()} influencers in {city}') for m in NICHES for h in [new_or_old(m, city, st)] if h]
-        browse = []
         cols = [(f'{city} by niche', other[:4]), (f'Influencers near {city}', near[:4])]
-    browse.append(('/engagement-rate-calculator', 'Engagement rate calculator'))
-    cols.append(('Browse all', browse))
+    cols.append(('Browse all', browse_links(niche, old, live)))
     if t:
         cn = t.get('city_niche')
         by_city = [] if cn is False else [(f'/influencers/{slug_for(c, s, cn)}', f'{cn.capitalize() + " influencers" if cn else "Influencers"} in {c}')
@@ -556,6 +580,9 @@ def render(w, f, rows, total, photos, old, live):
                f'None of the {N} creators has an engagement rate above 2%; the highest is {fer(max(ers))}.')
     if len(plats) == 1: ins.append(f'All {N} post mainly on {PLAT[top][0]}, with audiences from {fnum(lo)} to {fnum(hi)} followers.')
     else: ins.append('By main platform: ' + ', '.join(f'{c} on {PLAT[pl][0]}' for pl, c in sorted(plats.items(), key=lambda x: -x[1])) + f'. Audiences range from {fnum(lo)} to {fnum(hi)} followers.')
+    if w.get('tiers'):
+        parts = [f'{n:,} with {lab} followers' for lab, n in w['tiers']]
+        ins.append(f'By audience size, Jem Social\'s {total:,} {who}: ' + ', '.join(parts[:-1]) + f' and {parts[-1]}.')
     insights = '<ul role="list" class="jp-insight-list">' + ''.join(f'<li class="jp-insight">{esc(t)}</li>' for t in ins) + '</ul>'
     calc = '<a href="/influencer-rate-calculator" class="jp-inline-link">Influencer Rate Calculator</a>'
     smaller_higher = len(small) >= 2 and len(big) >= 2 and statistics.median(small) > statistics.median(big)
@@ -653,17 +680,24 @@ def cmd_run():
     live = {it['fieldData']['slug'] for it in items if not it['isDraft'] and it['fieldData'].get('creators-table')}
     rep = {'built': [], 'refreshed': [], 'unchanged': [], 'too_few': [], 'no_data': [], 'robots': [], 'uploaded': 0}
     for w in plan['work']:
+        t = TOPICS.get(w['slug']) or {}
         res = J.get(jkey(search_args(w)))
         if not res: rep['no_data'].append(w['slug']); continue
+        more_pages = [J.get(jkey({**search_args(w), 'cursor': cursor(25 * p)})) for p in range(1, t.get('pages', 1))]
+        res = {**res, 'results': (res.get('results') or []) + [r for m in more_pages if m for r in (m.get('results') or [])]}
+        if t.get('tiers'):
+            got = [J.get(jkey(q)) for q in tier_args(w)]
+            w['tiers'] = [(lab, int(g.get('total_estimate') or 0)) for (_, _, lab), g in zip(TIERS, got)] if all(got) else None
         rows = []
-        for r in candidates(res, exclude, w['niche'], (TOPICS.get(w['slug']) or {}).get('drop'), search_args(w)['min_followers']):
-            if len(rows) == SHOW: break
+        for r in candidates(res, exclude, w['niche'], t.get('drop'), search_args(w)['min_followers']):
+            if len(rows) == t.get('show', SHOW): break
             if r['hs'] not in photos:
                 u = upload_photo(r)
                 if not u: continue
                 photos[r['hs']] = u; rep['uploaded'] += 1
             rows.append(r)
         w['rows'], w['total'] = rows, int(res.get('total_estimate') or 0)
+        if w.get('tiers'): w['total'] = sum(n for _, n in w['tiers'])   # Jem's estimates vary between calls; keep the page's numbers adding up
         if len(rows) >= MIN_BUILD: live.add(w['slug'])
     pub = []
     for w in plan['work']:
@@ -713,6 +747,25 @@ def cmd_approve(slugs):
         for o in [x.strip() for x in (f.get('old-urls') or '').split(',') if x.strip()]: print(f'  301  {o}  ->  /influencers/{s}')
     publish(pub)
 
+def cmd_relink(dry=False):
+    # rewrite the "Browse all" links on live city pages (national list for the niche, UGC creators) without new Jem data
+    items, old = list_items(COLL), old_slugs()
+    live = {it['fieldData']['slug'] for it in items if not it['isDraft'] and it['fieldData'].get('creators-table')}
+    rx = re.compile(r'<div class="jp-related-col"><div class="jp-label">Browse all</div>(?:<a [^>]*>[^<]*</a>)*</div>')
+    pub = []
+    for it in items:
+        f = it['fieldData']
+        if it['isDraft'] or not f.get('creators-table') or f['slug'] in TOPICS: continue
+        new = ('<div class="jp-related-col"><div class="jp-label">Browse all</div>'
+               + ''.join(f'<a href="{h}" class="jp-link">{esc(t)}</a>' for h, t in browse_links(f.get('niche') or None, old, live)) + '</div>')
+        rl = f.get('related-links') or ''
+        out = rx.sub(lambda m: new, rl, count=1)
+        if out == rl: continue
+        pub.append(it['id'])
+        if not dry: wf('PATCH', f'/collections/{COLL}/items/{it["id"]}', {'fieldData': {'related-links': out}})
+    if not dry: publish(pub)
+    print(f'{"would update" if dry else "updated"} {len(pub)} city pages')
+
 def cmd_report():
     r = load('report.json'); s = lambda k: ', '.join(r[k][:12]) or 'none'
     print(f"Jem city pages {datetime.date.today():%b %d}: built {len(r['built'])} ({s('built')}); refreshed {len(r['refreshed'])}; "
@@ -722,4 +775,5 @@ def cmd_report():
 if __name__ == '__main__':
     cmd = sys.argv[1]
     if cmd == 'approve': cmd_approve(sys.argv[2:])
+    elif cmd == 'relink': cmd_relink(dry='--dry' in sys.argv)
     else: {'plan': cmd_plan, 'run': cmd_run, 'report': cmd_report}[cmd]()

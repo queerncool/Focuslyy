@@ -35,6 +35,17 @@
   `python3 jem_sync.py approve SLUG...` approves pages, publishes them, and prints the 301s to add in
   Webflow (from the page's Old URLs field).
 - **Too few creators:** pages with fewer than 5 are saved as drafts marked `skip:` and retried after 60 days.
+- **The two biggest lists** (UGC creators, fitness) show up to 50 creators from two result pages (`'show'`, `'pages'` in
+  `TOPICS`) and a follower-size breakdown from four count searches (`'tiers'`). Their headline total is the sum of the four
+  bands, because Jem's estimates vary slightly between calls. Platform counts aren't shown: Jem's platform filter returns
+  wrong totals (Nov 2026).
+
+## Maintenance commands
+
+- `FORCE=slug,slug python3 jem_sync.py plan` adds those pages to today's refresh, then `run` as usual.
+- `python3 jem_sync.py relink [--dry]` rewrites the "Browse all" links on every live city page (the US list for the
+  page's niche, UGC creators, the calculator) without new Jem searches.
+- `python3 old_pages.py check|unpublish|verify FILE` retires old /find-influencers/ pages once their redirects exist.
 
 ## Updating the scheduled task
 
