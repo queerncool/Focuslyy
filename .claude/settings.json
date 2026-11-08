@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__warmysender_for_Jem_Social__create_prospect",
+      "mcp__warmysender_for_Jem_Social__create_instagram_campaign",
+      "mcp__warmysender_for_Jem_Social__start_instagram_campaign",
+      "mcp__warmysender_for_Jem_Social__enroll_in_instagram_campaign"
+    ]
+  }
+}
