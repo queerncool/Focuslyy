@@ -14,6 +14,7 @@ W = os.path.expanduser('~/jem-sync'); os.makedirs(W, exist_ok=True)
 SITE_ID, COLL, OLD_COLL = '67b0d09acc5bda1c5c04566f', '6adc28d2f2806b611dd3a207', '69dae1304d0242f517edcc12'
 SITE, CDN, API = 'https://www.jem.social', 'https://cdn.prod.website-files.com/', 'https://api.webflow.com/v2'
 SIGNUP = 'https://app.jem.social/signup'
+PLATFORMS = ('/find-influencers/top-influencer-marketing-platforms', 'Influencer marketing platforms compared')   # every city and national page links here
 MAX_NEW, MAX_REFRESH = int(os.environ.get('MAX_NEW', 10)), int(os.environ.get('MAX_REFRESH', 4))
 REFRESH_DAYS, SKIP_DAYS = int(os.environ.get('REFRESH_DAYS', 27)), 60
 SHOW, MIN_BUILD, MIN_INDEX = 20, 5, 10
@@ -498,7 +499,7 @@ def browse_links(niche, old, live):
     if niche and niche in live: out.append((f'/influencers/{niche}', f'All US {niche} influencers'))
     elif niche and f'find-{niche}-influencers' in old: out.append((f'/find-influencers/find-{niche}-influencers', f'All {niche} influencers'))
     if 'ugc-creators' in live: out.append(('/influencers/ugc-creators', 'Hire UGC creators'))
-    return out + [('/engagement-rate-calculator', 'Engagement rate calculator')]
+    return out + [PLATFORMS, ('/engagement-rate-calculator', 'Engagement rate calculator')]
 
 def render(w, f, rows, total, photos, old, live):
     city, st, niche = w['city'], w['st'], w['niche']
@@ -563,7 +564,7 @@ def render(w, f, rows, total, photos, old, live):
                    for c, s, *_ in PRIORITY if slug_for(c, s, cn) in live][:6]
         lab = lambda x: (x.get('more_label') or x['crumb'])[:1].upper() + (x.get('more_label') or x['crumb'])[1:]
         more = [(f'/influencers/{sl}', lab(TOPICS[sl])) for sl in TOPICS if sl != slug and sl in live][:4]
-        cols = ([(t.get('city_label', 'Creators by city'), by_city)] if by_city else []) + t['links'] + ([('More creator lists', more)] if more else [])
+        cols = ([(t.get('city_label', 'Creators by city'), by_city)] if by_city else []) + t['links'] + ([('More creator lists', more)] if more else []) + [('Compare platforms', [PLATFORMS])]
     col = lambda lab, ls: (f'<div class="jp-related-col"><div class="jp-label">{esc(lab)}</div>' + ''.join(f'<a href="{h}" class="jp-link">{esc(t)}</a>' for h, t in ls) + '</div>') if ls else ''
     related = '<div class="jp-related">' + ''.join(col(a, b) for a, b in cols) + '</div>'
     crumb_city = (f'<a href="{hub_url}" class="jp-crumb-link">{esc(city)}</a>' if hub_url and niche else
@@ -764,10 +765,19 @@ def cmd_relink(dry=False):
     items, old = list_items(COLL), old_slugs()
     live = {it['fieldData']['slug'] for it in items if not it['isDraft'] and it['fieldData'].get('creators-table')}
     rx = re.compile(r'<div class="jp-related-col"><div class="jp-label">Browse all</div>(?:<a [^>]*>[^<]*</a>)*</div>')
+    pcol = f'<div class="jp-related-col"><div class="jp-label">Compare platforms</div><a href="{PLATFORMS[0]}" class="jp-link">{PLATFORMS[1]}</a></div>'
+    ONLY = {x.strip() for x in os.environ.get('ONLY', '').split(',') if x.strip()}
     pub = []
     for it in items:
         f = it['fieldData']
-        if it['isDraft'] or not f.get('creators-table') or f['slug'] in TOPICS: continue
+        if it['isDraft'] or not f.get('creators-table') or (ONLY and f['slug'] not in ONLY): continue
+        if f['slug'] in TOPICS:
+            rl = f.get('related-links') or ''
+            out = rl if PLATFORMS[0] in rl or not rl.rstrip().endswith('</div></div>') else re.sub(r'(</div></div>)\s*$', lambda m: pcol + m.group(1), rl, count=1)
+            if out == rl: continue
+            pub.append(it['id'])
+            if not dry: wf('PATCH', f'/collections/{COLL}/items/{it["id"]}', {'fieldData': {'related-links': out}})
+            continue
         new = ('<div class="jp-related-col"><div class="jp-label">Browse all</div>'
                + ''.join(f'<a href="{h}" class="jp-link">{esc(t)}</a>' for h, t in browse_links(f.get('niche') or None, old, live)) + '</div>')
         rl = f.get('related-links') or ''

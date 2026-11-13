@@ -44,7 +44,11 @@
 
 - `FORCE=slug,slug python3 jem_sync.py plan` adds those pages to today's refresh, then `run` as usual.
 - `python3 jem_sync.py relink [--dry]` rewrites the "Browse all" links on every live city page (the US list for the
-  page's niche, UGC creators, the calculator) without new Jem searches.
+  page's niche, UGC creators, the platforms comparison, the calculator) and adds a "Compare platforms" column to
+  national lists, without new Jem searches. `ONLY=slug,slug` limits it to those pages.
+- **Platforms link (Nov 13, 2026):** every city, niche and national page links to
+  `/find-influencers/top-influencer-marketing-platforms` (`PLATFORMS` in `jem_sync.py`). New and refreshed pages get it
+  from `render()`; existing pages got it from `relink`. The old related-links blocks are backed up outside the repo.
 - `python3 old_pages.py check|unpublish|verify FILE` retires old /find-influencers/ pages once their redirects exist.
 
 ## Updating the scheduled task
@@ -56,7 +60,7 @@ Instead, `jem_sync_task.py` is embedded at the end of the task's prompt, between
 
 `jem_sync_task.py` is generated: `python3 make_task_copy.py` strips comments, docstrings and the in-session-only
 commands (`approve`, `relink`, marked in `jem_sync.py`). Task prompts are limited to 64 KB (65,536 bytes); the
-Nov 5 prompt is 64,627 bytes, so about 900 bytes are left. After changing `jem_sync.py`:
+Nov 13 prompt is 64,789 bytes, so about 750 bytes are left. After changing `jem_sync.py`:
 
 1. Run `python3 make_task_copy.py`. It prints the size and MD5.
 2. Replace the embedded copy in the task's prompt with `jem_sync_task.py`, without its trailing newline, and put
