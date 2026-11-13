@@ -85,7 +85,7 @@ TOPICS = {
    ('How do I hire UGC creators?', "Start a 7-day free trial to see each creator's email and audience data. Then message them and pay through Jem Social, with funds held until you approve the content.", None),
    ('How do I become a UGC creator?', "Make a free Jem Social creator profile to pitch brands and track every application in one place. Brands post open UGC roles on Jem Social's opportunities page.",
     "Make a free Jem Social creator profile to pitch brands and track every application in one place. Brands post open UGC roles on the <a href=\"/opportunities\" class=\"jp-inline-link\">opportunities page</a>."),
-   ('How much does Jem Social cost?', 'For brands, Jem Social costs $69 per month after a 7-day free trial. For creators, pitching brands is free, or $20 per month for Premium.', None)],
+   ('How much does Jem Social cost?', 'For brands, Jem Social costs $69 per month after a 7-day free trial. For creators, pitching brands is free, or $19 per month for Premium.', None)],
   'links': [('UGC resources', [('/ugc-rate-card-generator', 'UGC rate card generator'), ('/free-ugc-contract-template', 'Free UGC contract template'),
                                ('/blog/what-is-ugc', 'What is UGC?'), ('/hire-tech-ugc-creators', 'Hire tech UGC creators')]),
             ('UGC by niche', [('/influencers/tech-ugc-creators', 'Tech UGC creators')]),
@@ -134,7 +134,7 @@ TOPICS = {
    ('How do I hire tech UGC creators for my app?', "Start a 7-day free trial to see each creator's email and audience data. Then message them and pay through Jem Social, with funds held until you approve the content.",
     "Start a 7-day free trial to see each creator's email and audience data. Then message them and pay through Jem Social, with funds held until you approve the content. "
     "<a href=\"/hire-tech-ugc-creators\" class=\"jp-inline-link\">See how app teams hire tech UGC creators</a>."),
-   ('How much does Jem Social cost?', 'For brands, Jem Social costs $69 per month after a 7-day free trial. For creators, pitching brands is free, or $20 per month for Premium.', None)],
+   ('How much does Jem Social cost?', 'For brands, Jem Social costs $69 per month after a 7-day free trial. For creators, pitching brands is free, or $19 per month for Premium.', None)],
   'links': [('Tech UGC', [('/hire-tech-ugc-creators', 'Hire tech UGC creators for your app'), ('/use-cases/hire-tech-ugc-creators-and-influencers', 'UGC for apps and tech products'),
                           ('/blog/tech-ugc', 'Tech UGC guide for creators'), ('/ugc-rate-card-generator', 'UGC rate card generator')]),
             ('More UGC', [('/influencers/ugc-creators', 'All UGC creators'), ('/free-ugc-contract-template', 'Free UGC contract template'), ('/blog/what-is-ugc', 'What is UGC?')])],
