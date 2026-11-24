@@ -43,3 +43,4 @@ example
 /android
 __pycache__/
 *.pyc
+jem-city-sync/pages/out/
